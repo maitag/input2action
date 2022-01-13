@@ -183,8 +183,7 @@ class Input2Actions
 	{
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
 		#if neko
-		var test = new Vector<String>(512);
-		trace(test.get(key));
+		keyboardState.callDownActions(Std.int(key)); // thx to signmajesty
 		#else
 		keyboardState.callDownActions(key);
 		#end
@@ -193,6 +192,7 @@ class Input2Actions
 	inline function keyUp(key:KeyCode, modifier:KeyModifier):Void
 	{
 		#if neko	
+		keyboardState.callUpActions(Std.int(key));
 		#else
 		keyboardState.callUpActions(key);
 		#end
