@@ -20,15 +20,79 @@ import json2object.JsonWriter;
  * by Sylvio Sell - Rostock 2019
 */
 
-private class KeyboardAction {
-	public var action:ActionFunction;
-	public var state(default, null):ActionState;
-	public var isDown:Bool = false;
-	public function new(state:ActionState, action:ActionFunction) {
-		this.action = action;
-		this.state = state;
+abstract KeyboardState(Vector<KeyboardAction>) {
+
+	public function addDownAction(key:KeyCodeOptimized, modKey:KeyCodeOptimized, action:ActionFunction) {
+		
+	}
+	
+	public inline function isDown(key:KeyCodeOptimized):Bool {
+		var keyboardAction = this.get(key);
+		if (keyboardAction != null) return false;
+		else return keyboardAction.isDown;
+	}
+	
+	public inline function callDownActions(key:KeyCodeOptimized) {
+		var keyboardAction = this.get(key);
+		if (keyboardAction != null && !keyboardAction.isDown) {
+			keyboardAction.isDown = true;
+			if (keyboardAction.singleActionDown != null) keyboardAction.singleActionDown(InputType.KEYBOARD, ActionState.DOWN);
+			if (keyboardAction.modifierActionDown != null) {
+				for (modifierAction in keyboardAction.modifierActionDown) {
+					if (isDown(modifierAction.keyCode)) {
+						modifierAction.action(InputType.KEYBOARD, ActionState.DOWN);
+					}
+				}
+			}
+		}
+	}
+
+	public function callUpActions(key:KeyCodeOptimized) {
+		var keyboardAction = this.get(key);
+		if (keyboardAction != null && keyboardAction.isDown) {
+			keyboardAction.isDown = false;
+			if (keyboardAction.singleActionUp != null) keyboardAction.singleActionUp(InputType.KEYBOARD, ActionState.UP);
+			
+			if (keyboardAction.modifierActionUp != null) {
+				for (modifierAction in keyboardAction.modifierActionUp) {
+					if (isDown(modifierAction.keyCode)) modifierAction.action(InputType.KEYBOARD, ActionState.UP);
+				}
+			}
+			
+			// TODO: if it was a modifier to some key (and this is still down)
+			// it should fire the mod-key-actionsUP what was stored into modifierToKeyActionUp
+			// but only if that key is still pressed (remove the isDown state then!)
+			// ODER lieber ohne sowas und dafür dann umgekehrte definition in der config!!!!!
+		}
 	}
 }
+
+
+private class KeyboardAction {
+	public var isDown:Bool = false;
+	
+	public var singleActionDown:ActionFunction = null;
+	public var modifierActionDown:Array<ModifierAction> = null;
+	
+	public var singleActionUp:ActionFunction = null;
+	public var modifierActionUp:Array<ModifierAction> = null;
+	
+	public var singleActionRepeat:ActionFunction = null;
+	public var modifierActionRepeat:Array<ModifierAction> = null;
+		
+	// contains all the keys to what this is a modifier for (and same action as into modifierActionUp)
+	public var modifierToKeyActionUp:Array<ModifierAction> = null;
+	
+	public function new() {
+	}
+}
+
+private class ModifierAction {
+	public var keyCode:KeyCodeOptimized;
+	public var action:ActionFunction;
+}
+
+
 
 
 class Input2Actions 
@@ -101,35 +165,21 @@ class Input2Actions
 		window.onKeyUp.remove(keyUp);
 	}
 	
+	
+	
+	// ---------------- Keyboard -----------------------------
+	
 	inline function keyDown(key:KeyCode, modifier:KeyModifier):Void
 	{
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
-		callKeyboardAction(key, modifier, ActionState.DOWN);
+		//keyboardState.keyDown(key);
 	}
 	
 	inline function keyUp(key:KeyCode, modifier:KeyModifier):Void
 	{
-		callKeyboardAction(key, modifier, ActionState.UP);
+		//keyboardState.keyUp(key);
 	}
 	
-	// ---------------- Keyboard -----------------------------
-	
-	public var lastKey(default, null):KeyCodeOptimized = KeyCodeOptimized.UNKNOWN;
-	
-	var minKeyCode:KeyCodeOptimized;
-	var maxKeyCode:KeyCodeOptimized;
-		
-	var keyboardActions:Vector<KeyboardAction>;
-	var keyboardActionsSize:Int = 0;
-	
-	inline function callKeyboardAction(key:KeyCodeOptimized, modifier:KeyModifier, actionState:ActionState) {
-		
-		trace(key, modifier, actionState);
-		
-		//keyboardActions.get(key)(InputType.KEYBOARD, actionState);
-		
-		//lastKey = key;
-	}
 	
 	
 	// ---------------- GamePad -----------------------------
