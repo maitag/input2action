@@ -48,6 +48,24 @@ abstract KeyboardState(Vector<KeyboardAction>) from Vector<KeyboardAction> to Ve
 		}
 	}
 	
+	public inline function addUpAction(action:ActionFunction, key:Int, modKey:Int = null) {
+		var keyboardAction = this.get(key);
+		if (keyboardAction == null) {
+			keyboardAction = new KeyboardAction();
+			this.set(key, keyboardAction);
+		}
+		
+		if (modKey == null) {
+			if (keyboardAction.singleActionUp != null) throw('Error, the single action to key $key is already defined');
+			keyboardAction.singleActionUp = action;
+		}
+		else {
+			if (keyboardAction.modifierActionUp == null) keyboardAction.modifierActionUp = new Array<ModifierAction>();
+			else for (ma in keyboardAction.modifierActionUp) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
+			keyboardAction.modifierActionUp.push(new ModifierAction(modKey, action));			
+		}
+	}
+	
 	public inline function isDown(key:Int):Bool {
 		var keyboardAction = this.get(key);
 		if (keyboardAction == null) return false;
@@ -136,6 +154,9 @@ class Input2Actions
 		//var modKeys = new Array<Array<KeyCodeOptimized>>(); // Optimize: balanced FastIntMap
 		//var singleKeys = new Array<KeyCodeOptimized>();
 		
+		var key:KeyCode;
+		var modkey:KeyCode;
+		
 		for (action in actionConfig.keys())
 		{
 			trace("action:", action);
@@ -151,10 +172,14 @@ class Input2Actions
 					for (keys in c.keyboard) {
 						switch (keys.length)
 						{
-							case 1:	keyboardState.addDownAction(actionFunction, keys[0]);
-							case 2:	keyboardState.addDownAction(actionFunction, keys[1], keys[0]);
+							case 1:	key = keys[0]; modkey = null; 
+							case 2:	key = keys[1]; modkey = keys[0]; 
 							default: throw("ERROR, only one modifier key is allowed!");
 						}
+						
+						if (c.down) keyboardState.addDownAction(actionFunction, key, modkey);
+						if (c.down) keyboardState.addUpAction(actionFunction, key, modkey);
+						
 					}
 				}
 				
@@ -182,7 +207,7 @@ class Input2Actions
 	inline function keyDown(key:KeyCode, modifier:KeyModifier):Void
 	{
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
-		#if neko
+		#if neko // TODO: check later into lime > 7.9.0
 		keyboardState.callDownActions(Std.int(key)); // thx to signmajesty
 		#else
 		keyboardState.callDownActions(key);
