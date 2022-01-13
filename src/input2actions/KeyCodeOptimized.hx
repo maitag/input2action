@@ -4,7 +4,7 @@ import lime.ui.KeyCode;
 
 @:forward
 @:forwardStatics
-@:enum abstract KeyCodeOptimized(KeyCode) to Int
+@:enum abstract KeyCodeOptimized(KeyCode) from Int to Int
 {
 	inline function new(i:Int) {
 		this = i;

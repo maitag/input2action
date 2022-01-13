@@ -49,7 +49,7 @@ class Main extends Application {
 			"action1" =>
 			{
 				//down:false,
-				up:false, repeat:false, repeatRate:1100,
+				up:true, repeat:false, repeatRate:1100,
 				keyboard  : [ KeyCode.LEFT, KeyCode.A, [KeyCode.LEFT_SHIFT, KeyCode.A], [KeyCode.RIGHT_SHIFT, KeyCode.A]  ],
 				gamepad   : [ GamepadButton.LEFT_STICK ]
 			}

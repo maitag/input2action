@@ -20,23 +20,47 @@ import json2object.JsonWriter;
  * by Sylvio Sell - Rostock 2019
 */
 
-abstract KeyboardState(Vector<KeyboardAction>) {
+//@:forward
+abstract KeyboardState(Vector<KeyboardAction>) from Vector<KeyboardAction> to Vector<KeyboardAction>
+{
+	
+	inline public function new(size:Int) {
+		this = new Vector<KeyboardAction>(size);
+		//for (i in 0...512) this.set(i, null);
+	}
 
-	public function addDownAction(key:KeyCodeOptimized, modKey:KeyCodeOptimized, action:ActionFunction) {
+
+	public inline function addDownAction(action:ActionFunction, key:Int, modKey:Int = null) {
+		var keyboardAction = this.get(key);
+		if (keyboardAction == null) {
+			keyboardAction = new KeyboardAction();
+			this.set(key, keyboardAction);
+		}
 		
+		if (modKey == null) {
+			if (keyboardAction.singleActionDown != null) throw('Error, the single action to key $key is already defined');
+			keyboardAction.singleActionDown = action;
+		}
+		else {
+			if (keyboardAction.modifierActionDown == null) keyboardAction.modifierActionDown = new Array<ModifierAction>();
+			else for (ma in keyboardAction.modifierActionDown) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
+			keyboardAction.modifierActionDown.push(new ModifierAction(modKey, action));			
+		}
 	}
 	
-	public inline function isDown(key:KeyCodeOptimized):Bool {
+	public inline function isDown(key:Int):Bool {
 		var keyboardAction = this.get(key);
-		if (keyboardAction != null) return false;
+		if (keyboardAction == null) return false;
 		else return keyboardAction.isDown;
 	}
 	
-	public inline function callDownActions(key:KeyCodeOptimized) {
+	public inline function callDownActions(key:Int) {
 		var keyboardAction = this.get(key);
 		if (keyboardAction != null && !keyboardAction.isDown) {
 			keyboardAction.isDown = true;
+			
 			if (keyboardAction.singleActionDown != null) keyboardAction.singleActionDown(InputType.KEYBOARD, ActionState.DOWN);
+			
 			if (keyboardAction.modifierActionDown != null) {
 				for (modifierAction in keyboardAction.modifierActionDown) {
 					if (isDown(modifierAction.keyCode)) {
@@ -44,13 +68,15 @@ abstract KeyboardState(Vector<KeyboardAction>) {
 					}
 				}
 			}
+			
 		}
 	}
 
-	public function callUpActions(key:KeyCodeOptimized) {
+	public function callUpActions(key:Int) {
 		var keyboardAction = this.get(key);
 		if (keyboardAction != null && keyboardAction.isDown) {
 			keyboardAction.isDown = false;
+			
 			if (keyboardAction.singleActionUp != null) keyboardAction.singleActionUp(InputType.KEYBOARD, ActionState.UP);
 			
 			if (keyboardAction.modifierActionUp != null) {
@@ -59,10 +85,6 @@ abstract KeyboardState(Vector<KeyboardAction>) {
 				}
 			}
 			
-			// TODO: if it was a modifier to some key (and this is still down)
-			// it should fire the mod-key-actionsUP what was stored into modifierToKeyActionUp
-			// but only if that key is still pressed (remove the isDown state then!)
-			// ODER lieber ohne sowas und dafür dann umgekehrte definition in der config!!!!!
 		}
 	}
 }
@@ -80,46 +102,47 @@ private class KeyboardAction {
 	public var singleActionRepeat:ActionFunction = null;
 	public var modifierActionRepeat:Array<ModifierAction> = null;
 		
-	// contains all the keys to what this is a modifier for (and same action as into modifierActionUp)
-	public var modifierToKeyActionUp:Array<ModifierAction> = null;
-	
 	public function new() {
 	}
 }
 
 private class ModifierAction {
-	public var keyCode:KeyCodeOptimized;
+	public var keyCode:Int;
 	public var action:ActionFunction;
+	public function new(keyCode:Int, action:ActionFunction) {
+		this.keyCode = keyCode;
+		this.action = action;	
+	}
 }
 
 
 
 
 class Input2Actions 
-{	
+{
+	var keyboardState:KeyboardState;
+	
 	public function new(actionConfig:ActionConfig, actionMap:ActionMap ) 
 	{
+		keyboardState = new KeyboardState(512);
 		
 		// converting actionMap to actionVector
 		var minKeyRangeL = 0x7fffffff;
 		var maxKeyRangeL = 0;
 		
-		var minKeyRangeH = 0x7fffffff;
-		var maxKeyRangeH = 0;
-
-		var f:ActionFunction;
+		var actionFunction:ActionFunction;
 		var c:ActionConfig.ActionConfigItem;
 		
 		//var modKeys = new Array<Array<KeyCodeOptimized>>(); // Optimize: balanced FastIntMap
 		//var singleKeys = new Array<KeyCodeOptimized>();
 		
-		for (k in actionConfig.keys())
+		for (action in actionConfig.keys())
 		{
-			trace(k);
-			f = actionMap.get(k);
-			if (f != null)
+			trace("action:", action);
+			actionFunction = actionMap.get(action);
+			if (actionFunction != null)
 			{
-				c = actionConfig.get(k);
+				c = actionConfig.get(action);
 				trace(c.up);
 				trace(c.down);
 				trace(c.repeat);
@@ -128,19 +151,8 @@ class Input2Actions
 					for (keys in c.keyboard) {
 						switch (keys.length)
 						{
-							case 1:
-								//singleKeys.push(keys[0]);
-							case 2: 
-								//var k0:KeyCodeOptimized = keys[0];
-								//var a:Array<KeyCodeOptimized>;
-								//
-								//if ( modKeys.exists(mk) ) {
-									//a = modKeys.get(mk);
-									//if () throw("ERROR, double");
-									//a.push(keys[1]);
-								//}
-								//else a = [ keys[1] ];
-								
+							case 1:	keyboardState.addDownAction(actionFunction, keys[0]);
+							case 2:	keyboardState.addDownAction(actionFunction, keys[1], keys[0]);
 							default: throw("ERROR, only one modifier key is allowed!");
 						}
 					}
@@ -149,9 +161,7 @@ class Input2Actions
 			}
 		}
 		
-		//trace("firstKeys", firstKeys);
-		
-		// for ...keyboardActions.push();
+		//trace(keyboardState);
 		
 	}
 	
@@ -172,12 +182,20 @@ class Input2Actions
 	inline function keyDown(key:KeyCode, modifier:KeyModifier):Void
 	{
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
-		//keyboardState.keyDown(key);
+		#if neko
+		var test = new Vector<String>(512);
+		trace(test.get(key));
+		#else
+		keyboardState.callDownActions(key);
+		#end
 	}
 	
 	inline function keyUp(key:KeyCode, modifier:KeyModifier):Void
 	{
-		//keyboardState.keyUp(key);
+		#if neko	
+		#else
+		keyboardState.callUpActions(key);
+		#end
 	}
 	
 	
@@ -225,11 +243,6 @@ class Input2Actions
 	}
 	
 	
-	public function callGamePadAction(gamepad:Gamepad, button:GamepadButton) {
-		
-		//keyboardActions.get(button)(ActionType.GAMEPAD, gamepad.id);
-		
-	}
 
 	
 	
