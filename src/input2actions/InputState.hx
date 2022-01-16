@@ -1,6 +1,7 @@
 package input2actions;
 
 import haxe.ds.Vector;
+import input2actions.Input2Actions;
 
 /**
  * by Sylvio Sell - Rostock 2019
@@ -30,7 +31,10 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 		else {
 			if (inputAction.modifierActionDown == null) inputAction.modifierActionDown = new Array<ModifierAction>();
 			else for (ma in inputAction.modifierActionDown) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
-			inputAction.modifierActionDown.push(new ModifierAction(modKey, action));			
+			
+			if (this.get(modKey) == null) this.set(modKey, new InputAction());// TODO
+			
+			inputAction.modifierActionDown.push(new ModifierAction(modKey, action));
 		}
 	}
 	
@@ -48,6 +52,9 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 		else {
 			if (inputAction.modifierActionUp == null) inputAction.modifierActionUp = new Array<ModifierAction>();
 			else for (ma in inputAction.modifierActionUp) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
+			
+			if (this.get(modKey) == null) this.set(modKey, new InputAction());// TODO
+			
 			inputAction.modifierActionUp.push(new ModifierAction(modKey, action));			
 		}
 	}
@@ -79,9 +86,7 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 			
 		}
 	}
-	
-	
-	
+		
 	public function callUpActions(key:Int) {
 		var inputAction = this.get(key);
 		if (inputAction != null && inputAction.isDown) {
@@ -96,6 +101,29 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 			}
 			
 		}
+	}
+	
+	@:to
+	public function toString():String {
+		var out = "";
+		for (i in 0...this.length) {
+			var inputAction = this.get(i);
+			if (inputAction != null) {
+				out += '\n\n$i : ${(inputAction.isDown) ? "isDown" : "isUp"}';
+				
+				if (inputAction.singleActionDown != null) out += ', down->' + inputAction.singleActionDown;
+				if (inputAction.singleActionUp != null) out += ', up->' + inputAction.singleActionUp;
+				
+				if (inputAction.modifierActionDown != null)
+					for (modifierAction in inputAction.modifierActionDown)
+						out += '\n  ' + modifierAction.keyCode + '->' + modifierAction.action;
+				if (inputAction.modifierActionUp != null)
+					for (modifierAction in inputAction.modifierActionUp)
+						out += '\n  ' + modifierAction.keyCode + '->' + modifierAction.action;
+			}
+		}
+
+		return out;
 	}
 	
 }

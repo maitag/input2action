@@ -24,12 +24,12 @@ class Input2Actions
 	static inline var MAX_USABLE_KEYCODES:Int = fromKeyCode(KeyCode.SLEEP) + 1;
 	
 	// removes all unused keys between KeyCode.DELETE and KeyCode.CAPS_LOCK
-	static inline function fromKeyCode(k:KeyCode):Int {
+	static public inline function fromKeyCode(k:KeyCode):Int {
 		return (k < UNUSED_KEYCODE_END) ? k : k - UNUSED_KEYCODE_END + UNUSED_KEYCODE_START;
 	}
 	
 	// extract back to full KeyCode range
-	static inline function toKeyCode(k:KeyCode):KeyCode {
+	static public inline function toKeyCode(k:KeyCode):KeyCode {
 		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
 	}
 	
@@ -62,9 +62,9 @@ class Input2Actions
 			if (actionFunction != null)
 			{
 				c = actionConfig.get(action);
-				trace(c.up);
-				trace(c.down);
-				trace(c.repeat);
+				//trace(c.up);
+				//trace(c.down);
+				//trace(c.repeat);
 				
 				if (c.keyboard != null) {
 					for (keys in c.keyboard) {
@@ -83,8 +83,7 @@ class Input2Actions
 			}
 		}
 		
-		//trace(keyboardState);
-		
+		trace(keyboardState);
 	}
 	
 	public function enable(window:Window) {
@@ -103,6 +102,8 @@ class Input2Actions
 	
 	inline function keyDown(key:KeyCode, _):Void
 	{
+		//trace("keydown:",StringTools.hex(fromKeyCode(Std.int(key))));
+
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
 		
 		#if neko // TODO: check later into lime > 7.9.0
@@ -114,6 +115,8 @@ class Input2Actions
 	
 	inline function keyUp(key:KeyCode, _):Void
 	{
+		//trace("keyup:",StringTools.hex(fromKeyCode(Std.int(key))));
+
 		#if neko // TODO: check later into lime > 7.9.0	
 		keyboardState.callUpActions( fromKeyCode(Std.int(key)) );
 		#else

@@ -48,22 +48,20 @@ class Main extends Application {
 		var actionConfig:input2actions.ActionConfig = [
 			"action1" =>
 			{
-				//down:false,
-				up:true, repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.A, KeyCode.D], [KeyCode.D, KeyCode.A]  ],
-				gamepad   : [ GamepadButton.LEFT_STICK ]
+				down:true, up:true, //repeat:false, repeatRate:1100,
+				keyboard  : [ [KeyCode.X] ],
+				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			"action2" =>
 			{
-				//down:false,
-				up:false, repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.RIGHT_SHIFT, KeyCode.LEFT], KeyCode.RIGHT ],
-				gamepad   : [ GamepadButton.LEFT_STICK ]
+				down:true,	up:true, //repeat:false, repeatRate:1100,
+				keyboard  : [ [KeyCode.A, KeyCode.D]  ],
+				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
-			"switchFullscreen" =>
-			{
-				keyboard  : [ KeyCode.F ],
-			},
+			//"switchFullscreen" =>
+			//{
+				//keyboard  : [ KeyCode.F ],
+			//},
 		];
 		
 		//var actionConfigJson:ActionConfigJson = actionConfig;
