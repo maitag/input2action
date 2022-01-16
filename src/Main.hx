@@ -50,9 +50,20 @@ class Main extends Application {
 			{
 				//down:false,
 				up:true, repeat:false, repeatRate:1100,
-				keyboard  : [ KeyCode.LEFT, KeyCode.A, [KeyCode.LEFT_SHIFT, KeyCode.A], [KeyCode.RIGHT_SHIFT, KeyCode.A]  ],
+				keyboard  : [ [KeyCode.A, KeyCode.D], [KeyCode.D, KeyCode.A]  ],
 				gamepad   : [ GamepadButton.LEFT_STICK ]
-			}
+			},
+			"action2" =>
+			{
+				//down:false,
+				up:false, repeat:false, repeatRate:1100,
+				keyboard  : [ [KeyCode.RIGHT_SHIFT, KeyCode.LEFT], KeyCode.RIGHT ],
+				gamepad   : [ GamepadButton.LEFT_STICK ]
+			},
+			"switchFullscreen" =>
+			{
+				keyboard  : [ KeyCode.F ],
+			},
 		];
 		
 		//var actionConfigJson:ActionConfigJson = actionConfig;
@@ -60,7 +71,8 @@ class Main extends Application {
 		
 		var actionMap:ActionMap = [
 			"action1" => action1,
-			//"action2" => action2,
+			"action2" => action2,
+			"switchFullscreen" => switchFullscreen,
 		];
 		
 		
@@ -99,7 +111,25 @@ class Main extends Application {
 		}
 	}
 	
-	function switchFullscreen(_) {
+	function action2(inputType:InputType, actionState:ActionState) 
+	{
+		var type:String;
+		switch (inputType) {
+			case (InputType.KEYBOARD) : type = "Keyboard";
+			case (InputType.GAMEPAD)  : type = "GamePad";
+			case (InputType.JOYSTICK) : type = "JoyStick";
+			default: type = "unknown";
+		}
+		
+		switch (actionState) {
+			case (ActionState.DOWN)    : trace("action 2 - DOWN");
+			case (ActionState.UP)      : trace("action 2 - UP");
+			case (ActionState.REPEAT)  : trace("action 2 - REPEAT");
+			default: trace("error");
+		}
+	}
+	
+	function switchFullscreen(inputType:InputType, actionState:ActionState) {
 		window.fullscreen = !window.fullscreen;
 	}
 	

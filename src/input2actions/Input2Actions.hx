@@ -1,15 +1,10 @@
 package input2actions;
 
-import haxe.ds.Vector;
-import haxe.ds.IntMap;
-
-
-import input2actions.KeyCodeOptimized;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
 import lime.ui.KeyCode;
-import lime.ui.KeyModifier;
+//import lime.ui.KeyModifier;
 import lime.ui.Window;
 
 import json2object.JsonParser;
@@ -20,129 +15,34 @@ import json2object.JsonWriter;
  * by Sylvio Sell - Rostock 2019
 */
 
-//@:forward
-abstract KeyboardState(Vector<KeyboardAction>) from Vector<KeyboardAction> to Vector<KeyboardAction>
-{
-	
-	inline public function new(size:Int) {
-		this = new Vector<KeyboardAction>(size);
-		//for (i in 0...512) this.set(i, null);
-	}
-
-
-	public inline function addDownAction(action:ActionFunction, key:Int, modKey:Int = null) {
-		var keyboardAction = this.get(key);
-		if (keyboardAction == null) {
-			keyboardAction = new KeyboardAction();
-			this.set(key, keyboardAction);
-		}
-		
-		if (modKey == null) {
-			if (keyboardAction.singleActionDown != null) throw('Error, the single action to key $key is already defined');
-			keyboardAction.singleActionDown = action;
-		}
-		else {
-			if (keyboardAction.modifierActionDown == null) keyboardAction.modifierActionDown = new Array<ModifierAction>();
-			else for (ma in keyboardAction.modifierActionDown) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
-			keyboardAction.modifierActionDown.push(new ModifierAction(modKey, action));			
-		}
-	}
-	
-	public inline function addUpAction(action:ActionFunction, key:Int, modKey:Int = null) {
-		var keyboardAction = this.get(key);
-		if (keyboardAction == null) {
-			keyboardAction = new KeyboardAction();
-			this.set(key, keyboardAction);
-		}
-		
-		if (modKey == null) {
-			if (keyboardAction.singleActionUp != null) throw('Error, the single action to key $key is already defined');
-			keyboardAction.singleActionUp = action;
-		}
-		else {
-			if (keyboardAction.modifierActionUp == null) keyboardAction.modifierActionUp = new Array<ModifierAction>();
-			else for (ma in keyboardAction.modifierActionUp) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
-			keyboardAction.modifierActionUp.push(new ModifierAction(modKey, action));			
-		}
-	}
-	
-	public inline function isDown(key:Int):Bool {
-		var keyboardAction = this.get(key);
-		if (keyboardAction == null) return false;
-		else return keyboardAction.isDown;
-	}
-	
-	public inline function callDownActions(key:Int) {
-		var keyboardAction = this.get(key);
-		if (keyboardAction != null && !keyboardAction.isDown) {
-			keyboardAction.isDown = true;
-			
-			if (keyboardAction.singleActionDown != null) keyboardAction.singleActionDown(InputType.KEYBOARD, ActionState.DOWN);
-			
-			if (keyboardAction.modifierActionDown != null) {
-				for (modifierAction in keyboardAction.modifierActionDown) {
-					if (isDown(modifierAction.keyCode)) {
-						modifierAction.action(InputType.KEYBOARD, ActionState.DOWN);
-					}
-				}
-			}
-			
-		}
-	}
-
-	public function callUpActions(key:Int) {
-		var keyboardAction = this.get(key);
-		if (keyboardAction != null && keyboardAction.isDown) {
-			keyboardAction.isDown = false;
-			
-			if (keyboardAction.singleActionUp != null) keyboardAction.singleActionUp(InputType.KEYBOARD, ActionState.UP);
-			
-			if (keyboardAction.modifierActionUp != null) {
-				for (modifierAction in keyboardAction.modifierActionUp) {
-					if (isDown(modifierAction.keyCode)) modifierAction.action(InputType.KEYBOARD, ActionState.UP);
-				}
-			}
-			
-		}
-	}
-}
-
-
-private class KeyboardAction {
-	public var isDown:Bool = false;
-	
-	public var singleActionDown:ActionFunction = null;
-	public var modifierActionDown:Array<ModifierAction> = null;
-	
-	public var singleActionUp:ActionFunction = null;
-	public var modifierActionUp:Array<ModifierAction> = null;
-	
-	public var singleActionRepeat:ActionFunction = null;
-	public var modifierActionRepeat:Array<ModifierAction> = null;
-		
-	public function new() {
-	}
-}
-
-private class ModifierAction {
-	public var keyCode:Int;
-	public var action:ActionFunction;
-	public function new(keyCode:Int, action:ActionFunction) {
-		this.keyCode = keyCode;
-		this.action = action;	
-	}
-}
-
-
-
 
 class Input2Actions 
 {
-	var keyboardState:KeyboardState;
+	var keyboardState:InputState;
+	static inline var UNUSED_KEYCODE_START:Int = KeyCode.DELETE + 1; // 0x80;
+	static inline var UNUSED_KEYCODE_END:Int = KeyCode.CAPS_LOCK; // 0x40000039;
+	static inline var MAX_USABLE_KEYCODES:Int = fromKeyCode(KeyCode.SLEEP) + 1;
+	
+	// removes all unused keys between KeyCode.DELETE and KeyCode.CAPS_LOCK
+	static inline function fromKeyCode(k:KeyCode):Int {
+		return (k < UNUSED_KEYCODE_END) ? k : k - UNUSED_KEYCODE_END + UNUSED_KEYCODE_START;
+	}
+	
+	// extract back to full KeyCode range
+	static inline function toKeyCode(k:KeyCode):KeyCode {
+		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
+	}
+	
+	
 	
 	public function new(actionConfig:ActionConfig, actionMap:ActionMap ) 
 	{
-		keyboardState = new KeyboardState(512);
+		//trace(StringTools.hex(fromKeyCode(KeyCode.BACKSPACE)));
+		//trace(StringTools.hex(fromKeyCode(KeyCode.DELETE)));
+		//trace(StringTools.hex(fromKeyCode(KeyCode.CAPS_LOCK)));
+		//trace(StringTools.hex(fromKeyCode(KeyCode.SLEEP)));
+		
+		keyboardState = new InputState(MAX_USABLE_KEYCODES);
 		
 		// converting actionMap to actionVector
 		var minKeyRangeL = 0x7fffffff;
@@ -151,8 +51,6 @@ class Input2Actions
 		var actionFunction:ActionFunction;
 		var c:ActionConfig.ActionConfigItem;
 		
-		//var modKeys = new Array<Array<KeyCodeOptimized>>(); // Optimize: balanced FastIntMap
-		//var singleKeys = new Array<KeyCodeOptimized>();
 		
 		var key:KeyCode;
 		var modkey:KeyCode;
@@ -172,13 +70,12 @@ class Input2Actions
 					for (keys in c.keyboard) {
 						switch (keys.length)
 						{
-							case 1:	key = keys[0]; modkey = null; 
-							case 2:	key = keys[1]; modkey = keys[0]; 
+							case 1:	key = fromKeyCode(keys[0]); modkey = null; 
+							case 2:	key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
 							default: throw("ERROR, only one modifier key is allowed!");
 						}
-						
 						if (c.down) keyboardState.addDownAction(actionFunction, key, modkey);
-						if (c.down) keyboardState.addUpAction(actionFunction, key, modkey);
+						if (c.up) keyboardState.addUpAction(actionFunction, key, modkey);
 						
 					}
 				}
@@ -204,22 +101,23 @@ class Input2Actions
 	
 	// ---------------- Keyboard -----------------------------
 	
-	inline function keyDown(key:KeyCode, modifier:KeyModifier):Void
+	inline function keyDown(key:KeyCode, _):Void
 	{
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
+		
 		#if neko // TODO: check later into lime > 7.9.0
-		keyboardState.callDownActions(Std.int(key)); // thx to signmajesty
+		keyboardState.callDownActions( fromKeyCode(Std.int(key)) );
 		#else
-		keyboardState.callDownActions(key);
+		keyboardState.callDownActions( fromKeyCode(key) );
 		#end
 	}
 	
-	inline function keyUp(key:KeyCode, modifier:KeyModifier):Void
+	inline function keyUp(key:KeyCode, _):Void
 	{
-		#if neko	
-		keyboardState.callUpActions(Std.int(key));
+		#if neko // TODO: check later into lime > 7.9.0	
+		keyboardState.callUpActions( fromKeyCode(Std.int(key)) );
 		#else
-		keyboardState.callUpActions(key);
+		keyboardState.callUpActions( fromKeyCode(key) );
 		#end
 	}
 	
