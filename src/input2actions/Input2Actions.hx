@@ -11,6 +11,8 @@ import json2object.JsonParser;
 import json2object.JsonWriter;
 
 
+import input2actions.util.EnumMacros;
+
 /**
  * by Sylvio Sell - Rostock 2019
 */
@@ -29,7 +31,7 @@ class Input2Actions
 	}
 	
 	// extract back to full KeyCode range
-	static public inline function toKeyCode(k:KeyCode):KeyCode {
+	static public inline function toKeyCode(k:Int):KeyCode {
 		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
 	}
 	

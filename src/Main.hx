@@ -49,13 +49,13 @@ class Main extends Application {
 			"action1" =>
 			{
 				down:true, up:true, //repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.X] ],
+				keyboard  : [ [KeyCode.S] ],
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			"action2" =>
 			{
 				down:true,	up:true, //repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.A, KeyCode.D]  ],
+				keyboard  : [ [KeyCode.A, KeyCode.S]  ],
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			//"switchFullscreen" =>
@@ -77,7 +77,6 @@ class Main extends Application {
 		var input2Actions = new Input2Actions(actionConfig, actionMap);
 
 		//input2Actions.config(actionConfig, actionMap);
-		
 		
 		
 		

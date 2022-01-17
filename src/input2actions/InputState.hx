@@ -1,7 +1,8 @@
 package input2actions;
 
 import haxe.ds.Vector;
-import input2actions.Input2Actions;
+
+import input2actions.util.EnumMacros;
 
 /**
  * by Sylvio Sell - Rostock 2019
@@ -74,6 +75,7 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 		if (inputAction != null && !inputAction.isDown) {
 			inputAction.isDown = true;
 			
+			//TODO: switch here between ONLY single-action and MULTI-KEY-ACTIONS (where the single is inside the list ordererd by priority)
 			if (inputAction.singleActionDown != null) inputAction.singleActionDown(InputType.KEYBOARD, ActionState.DOWN);
 			
 			if (inputAction.modifierActionDown != null) {
@@ -92,6 +94,7 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 		if (inputAction != null && inputAction.isDown) {
 			inputAction.isDown = false;
 			
+			//TODO: switch here between ONLY single-action and MULTI-KEY-ACTIONS (where the single is inside the list ordererd by priority)
 			if (inputAction.singleActionUp != null) inputAction.singleActionUp(InputType.KEYBOARD, ActionState.UP);
 			
 			if (inputAction.modifierActionUp != null) {
@@ -109,17 +112,25 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 		for (i in 0...this.length) {
 			var inputAction = this.get(i);
 			if (inputAction != null) {
-				out += '\n\n$i : ${(inputAction.isDown) ? "isDown" : "isUp"}';
+				out += '\n\n';
+				out += EnumMacros.getValueNameMap(lime.ui.KeyCode).get(Input2Actions.toKeyCode(i));
+				out += (inputAction.isDown) ? " isDown" : " isUp";
 				
 				if (inputAction.singleActionDown != null) out += ', down->' + inputAction.singleActionDown;
+				
 				if (inputAction.singleActionUp != null) out += ', up->' + inputAction.singleActionUp;
 				
 				if (inputAction.modifierActionDown != null)
 					for (modifierAction in inputAction.modifierActionDown)
-						out += '\n  ' + modifierAction.keyCode + '->' + modifierAction.action;
+						out += '\n   '
+						+ EnumMacros.getValueNameMap(lime.ui.KeyCode).get(Input2Actions.toKeyCode(modifierAction.keyCode))
+						+ ' down->' + modifierAction.action;
+						
 				if (inputAction.modifierActionUp != null)
 					for (modifierAction in inputAction.modifierActionUp)
-						out += '\n  ' + modifierAction.keyCode + '->' + modifierAction.action;
+						out += '\n   '
+						+ EnumMacros.getValueNameMap(lime.ui.KeyCode).get(Input2Actions.toKeyCode(modifierAction.keyCode))
+						+ ' up->' + modifierAction.action;
 			}
 		}
 
@@ -152,6 +163,10 @@ private class InputAction {
 
 
 private class ModifierAction {
+	
+	//TODO:
+	//public var isDown:Bool = false;
+	
 	public var keyCode:Int;
 	public var action:ActionFunction;
 	public function new(keyCode:Int, action:ActionFunction) {
