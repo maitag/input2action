@@ -61,7 +61,7 @@ class Input2Actions
 		
 		for (action in actionConfig.keys())
 		{
-			//trace("action:", action);
+			trace("action:", action);
 			actionFunction = actionMap.get(action);
 			if (actionFunction != null)
 			{
@@ -74,12 +74,21 @@ class Input2Actions
 					for (keys in c.keyboard) {
 						switch (keys.length)
 						{
-							case 1:	key = fromKeyCode(keys[0]); modkey = null; 
-							case 2:	key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
+							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
+							case 2:	
+								#if input2actions_singlekey
+								throw('ERROR, multiple keys is disabled by compiler define: "input2actions_singlekey"');
+								#else
+								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
+								#end
 							default: throw("ERROR, only one modifier key is allowed!");
 						}
+						// TODO: if down is false but up is true -> create down-handler but with null-action
 						if (c.down) keyboardState.addDownAction(actionFunction, key, modkey);
 						if (c.up) keyboardState.addUpAction(actionFunction, key, modkey);
+						
+						// TODO:
+						//if (c.repeat) keyboardState.addRepeatAction(actionFunction, key, modkey);
 						
 					}
 				}
@@ -116,7 +125,7 @@ class Input2Actions
 		keyboardState.callDownActions( fromKeyCode(key) );
 		#end
 		
-		if (key != lastKeyDown) {  trace("-- KeyDOWN --");keyboardState.debug(actionMap); lastKeyDown = key; }
+		//if (key != lastKeyDown) {  trace("-- KeyDOWN --");keyboardState.debug(actionMap); lastKeyDown = key; }
 	}
 	
 	inline function keyUp(key:KeyCode, _):Void
@@ -129,7 +138,7 @@ class Input2Actions
 		keyboardState.callUpActions( fromKeyCode(key) );
 		#end
 		
-		trace("--- KeyUP ---"); keyboardState.debug(actionMap);
+		//trace("--- KeyUP ---"); keyboardState.debug(actionMap);
 	}
 	
 	

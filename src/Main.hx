@@ -47,16 +47,27 @@ class Main extends Application {
 
 		// defined in haxe
 		var actionConfig:input2actions.ActionConfig = [
+			#if !input2actions_singlekey
+			"action2" =>
+			{
+				// TODO: something like priority or grouping,
+				// TODO: if down is false but up is true -> create down-handler but with null-action
+				down:true,	up:true, //repeat:false, repeatRate:1100,
+				keyboard  : [ [KeyCode.A, KeyCode.S]  ], // double-key: "a" have to press first 
+				//gamepad   : [ GamepadButton.LEFT_STICK ]
+			},
+			"action3" =>
+			{
+				down:true,
+				up:false, //repeat:false, repeatRate:1100,
+				keyboard  : [ [KeyCode.D, KeyCode.S]  ], // double-key: "s" have to press first 
+				//gamepad   : [ GamepadButton.LEFT_STICK ]
+			},
+			#end
 			"action1" =>
 			{
 				down:true, up:true, //repeat:false, repeatRate:1100,
 				keyboard  : [ [KeyCode.S] ],
-				//gamepad   : [ GamepadButton.LEFT_STICK ]
-			},
-			"action2" =>
-			{
-				down:true,	up:true, //repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.A, KeyCode.S]  ],
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			//"switchFullscreen" =>
@@ -71,6 +82,7 @@ class Main extends Application {
 		var actionMap:ActionMap = [
 			"action1" => action1,
 			"action2" => action2,
+			"action3" => action3,
 			"switchFullscreen" => switchFullscreen,
 		];
 		
@@ -121,6 +133,24 @@ class Main extends Application {
 			case (ActionState.DOWN)    : trace("action 2 - DOWN");
 			case (ActionState.UP)      : trace("action 2 - UP");
 			case (ActionState.REPEAT)  : trace("action 2 - REPEAT");
+			default: trace("error");
+		}
+	}
+	
+	function action3(inputType:InputType, actionState:ActionState) 
+	{
+		var type:String;
+		switch (inputType) {
+			case (InputType.KEYBOARD) : type = "Keyboard";
+			case (InputType.GAMEPAD)  : type = "GamePad";
+			case (InputType.JOYSTICK) : type = "JoyStick";
+			default: type = "unknown";
+		}
+		
+		switch (actionState) {
+			case (ActionState.DOWN)    : trace("action 3 - DOWN");
+			case (ActionState.UP)      : trace("action 3 - UP");
+			case (ActionState.REPEAT)  : trace("action 3 - REPEAT");
 			default: trace("error");
 		}
 	}
