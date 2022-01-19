@@ -1,5 +1,6 @@
 package;
 
+import input2actions.util.EnumMacros;
 import lime.app.Application;
 import lime.graphics.RenderContext;
 
@@ -77,8 +78,6 @@ class Main extends Application {
 		var input2Actions = new Input2Actions(actionConfig, actionMap);
 
 		//input2Actions.config(actionConfig, actionMap);
-		
-		
 		
 		input2Actions.enable(window);
 		//input2Actions.disable(window);

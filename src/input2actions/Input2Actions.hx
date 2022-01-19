@@ -1,5 +1,6 @@
 package input2actions;
 
+import input2actions.ActionMap;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
@@ -20,6 +21,10 @@ import input2actions.util.EnumMacros;
 
 class Input2Actions 
 {
+	public static var keyCodeName(default, never) = EnumMacros.nameByValue(KeyCode);
+	public static var keyCodeValue(default, never) = EnumMacros.valueByName(KeyCode);
+	
+	
 	var keyboardState:InputState;
 	static inline var UNUSED_KEYCODE_START:Int = KeyCode.DELETE + 1; // 0x80;
 	static inline var UNUSED_KEYCODE_END:Int = KeyCode.CAPS_LOCK; // 0x40000039;
@@ -35,14 +40,11 @@ class Input2Actions
 		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
 	}
 	
-	
+	public var actionMap(default, null):ActionMap;
 	
 	public function new(actionConfig:ActionConfig, actionMap:ActionMap ) 
 	{
-		//trace(StringTools.hex(fromKeyCode(KeyCode.BACKSPACE)));
-		//trace(StringTools.hex(fromKeyCode(KeyCode.DELETE)));
-		//trace(StringTools.hex(fromKeyCode(KeyCode.CAPS_LOCK)));
-		//trace(StringTools.hex(fromKeyCode(KeyCode.SLEEP)));
+		this.actionMap = actionMap;
 		
 		keyboardState = new InputState(MAX_USABLE_KEYCODES);
 		
@@ -59,7 +61,7 @@ class Input2Actions
 		
 		for (action in actionConfig.keys())
 		{
-			trace("action:", action);
+			//trace("action:", action);
 			actionFunction = actionMap.get(action);
 			if (actionFunction != null)
 			{
@@ -85,7 +87,7 @@ class Input2Actions
 			}
 		}
 		
-		trace(keyboardState);
+		keyboardState.debug(actionMap);
 	}
 	
 	public function enable(window:Window) {
@@ -101,7 +103,7 @@ class Input2Actions
 	
 	
 	// ---------------- Keyboard -----------------------------
-	
+	var lastKeyDown:KeyCode = 0; // only for debugging
 	inline function keyDown(key:KeyCode, _):Void
 	{
 		//trace("keydown:",StringTools.hex(fromKeyCode(Std.int(key))));
@@ -113,6 +115,8 @@ class Input2Actions
 		#else
 		keyboardState.callDownActions( fromKeyCode(key) );
 		#end
+		
+		if (key != lastKeyDown) {  trace("-- KeyDOWN --");keyboardState.debug(actionMap); lastKeyDown = key; }
 	}
 	
 	inline function keyUp(key:KeyCode, _):Void
@@ -124,6 +128,8 @@ class Input2Actions
 		#else
 		keyboardState.callUpActions( fromKeyCode(key) );
 		#end
+		
+		trace("--- KeyUP ---"); keyboardState.debug(actionMap);
 	}
 	
 	
