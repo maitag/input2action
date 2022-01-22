@@ -4,7 +4,7 @@ import input2actions.util.NestedArray;
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
 
-typedef ActionConfig = haxe.ds.StringMap<ActionConfigItem>;
+typedef ActionConfig = Array<ActionConfigItem>;
 //typedef ActionConfig = Map<String, ActionConfigItem>;
 
 
@@ -23,9 +23,14 @@ typedef ActionConfig = haxe.ds.StringMap<ActionConfigItem>;
 
 @:structInit
 class ActionConfigItem {
-	public var down:Bool = true;
-	public var up:Bool = false;
-	public var repeat:Bool = false;
+	public var action:String;
+	
+	public var single:Bool = false;
+	
+	public var down:KeySetting = KeySetting.ONES;
+	public var up:KeySetting = KeySetting.ONES;
+	
+	public var repeat:Int = 0;
 	public var repeatRate:Int = 10;
 	
 	public var keyboard:NestedArray<KeyCode> = null;

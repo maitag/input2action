@@ -10,5 +10,9 @@
 	<haxelib name="lime" />
 	<haxelib name="json2object" />
 	
+	<!-- optimize for singlekey only -->
+	<!-- <haxedef name="input2actions_singlekey" /> -->
+	
+	<haxeflag name="-dce" value="full" />
 	
 </project>

@@ -22,7 +22,7 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 
 
 	// TODO: up and down into one function
-	public inline function addDownAction(action:ActionFunction, key:Int, modKey:Int = 0) {
+	public inline function addAction(actionState:ActionState, key:Int, modKey:Int = 0) {
 		var inputAction = this.get(key);
 		if (inputAction == null) {
 			inputAction = new InputAction();
@@ -33,34 +33,15 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 			if (inputAction.singleKeyDown != null) throw('Error, the single action to key $key is already defined');
 			inputAction.singleKeyDown = action;
 		#else
-			if (inputAction.multiKeyDown == null) inputAction.multiKeyDown = new Array<MultiKeyAction>();
-			else for (ma in inputAction.multiKeyDown) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
+			if (inputAction.multiKeyAction == null) inputAction.multiKeyAction = new Array<MultiKeyAction>();
+			else for (ma in inputAction.multiKeyAction) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
 			
 			if (modKey > 0 && this.get(modKey) == null) this.set(modKey, new InputAction());// TODO
 			
-			inputAction.multiKeyDown.push(new MultiKeyAction(modKey, action));
+			inputAction.multiKeyAction.push(new MultiKeyAction(modKey, actionState));
 		#end
 	}
-	
-	public inline function addUpAction(action:ActionFunction, key:Int, modKey:Int = 0) {
-		var inputAction = this.get(key);
-		if (inputAction == null) {
-			inputAction = new InputAction();
-			this.set(key, inputAction);
-		}
-		
-		#if input2actions_singlekey
-		if (inputAction.singleKeyUp != null) throw('Error, the single action to key $key is already defined');
-		inputAction.singleKeyUp = action;
-		#else
-		if (inputAction.multiKeyUp == null) inputAction.multiKeyUp = new Array<MultiKeyAction>();
-		else for (ma in inputAction.multiKeyUp) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
-		
-		if (modKey > 0 && this.get(modKey) == null) this.set(modKey, new InputAction());// TODO
-		
-		inputAction.multiKeyUp.push(new MultiKeyAction(modKey, action));			
-		#end
-	}
+
 	
 	
 	
@@ -70,22 +51,41 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 		else return inputAction.isDown;
 	}
 	
-	
-	
+		
 	public inline function callDownActions(key:Int) {
 		var inputAction = this.get(key);
 		if (inputAction != null && !inputAction.isDown) {
 			inputAction.isDown = true;
 			
 			#if input2actions_singlekey
-			if (inputAction.singleKeyDown != null) inputAction.singleKeyDown(InputType.KEYBOARD, ActionState.DOWN);
+			if (inputAction.singleKeyDown != null) inputAction.singleKeyDown(InputType.KEYBOARD, ActionType.DOWN); //TODO
 			#else
-			if (inputAction.multiKeyDown != null) {
-				for (modifierAction in inputAction.multiKeyDown) {
-					if (modifierAction.keyCode == 0 || isDown(modifierAction.keyCode)) {
-						modifierAction.action(InputType.KEYBOARD, ActionState.DOWN);
-						inputAction.downByModKey = modifierAction.keyCode; // TODO: in MultiKeyAction->isDown speichern
-						break; // TODO: allow more then one
+			if (inputAction.multiKeyAction != null) 
+			{
+				var called = false;
+				for (multiKeyAction in inputAction.multiKeyAction) 
+				{
+					if (multiKeyAction.keyCode == 0 || isDown(multiKeyAction.keyCode))
+					{
+						var actionState:ActionState = multiKeyAction.actionState;
+						
+						if (!actionState.single || !called) 
+						{					
+							switch (actionState.down) {
+								case ANY  :
+									actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+									called = true;
+									actionState.pressed++;
+								case ONES :
+									if (actionState.pressed == 0) {
+										actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+										called = true;
+									}
+									actionState.pressed++;
+								default:
+							}							
+							if (actionState.single) break;
+						}
 					}
 				}
 			} 
@@ -99,25 +99,44 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 			inputAction.isDown = false;
 			
 			#if input2actions_singlekey
-			if (inputAction.singleKeyUp != null) inputAction.singleKeyUp(InputType.KEYBOARD, ActionState.UP);
+			if (inputAction.singleKeyUp != null) inputAction.singleKeyUp(InputType.KEYBOARD, ActionType.UP); //TODO
 			#else
-			if (inputAction.multiKeyUp != null) {
-				for (modifierAction in inputAction.multiKeyUp) {
-					//if (modifierAction.keyCode == 0 || isDown(modifierAction.keyCode)) {
-					if (modifierAction.keyCode == inputAction.downByModKey) { // TODO: only if inside MultiKeyAction->isDown
-						modifierAction.action(InputType.KEYBOARD, ActionState.UP);
-						break; // TODO: allow more then one
+			if (inputAction.multiKeyAction != null)
+			{
+				var called = false;
+				for (multiKeyAction in inputAction.multiKeyAction)
+				{
+					var actionState:ActionState = multiKeyAction.actionState;
+					if (actionState.pressed > 0 )
+					{					
+						if (!actionState.single || !called) 
+						{					
+							switch (actionState.up) {
+								case ANY  :
+									actionState.pressed--;
+									actionState.action(InputType.KEYBOARD, ActionType.UP);
+									called = true;
+								case ONES :
+									actionState.pressed--;
+									if (actionState.pressed == 0) {
+										actionState.action(InputType.KEYBOARD, ActionType.UP); called = true;
+									}
+								default:
+							}						
+							if (actionState.single) break;
+						}
 					}
+
 				}
 			}
 			#end
 		}
 	}
 	
-	@:to
-	public function toString():String return toStringWithAction();
-
-	public function debug(actionMap:ActionMap) trace(toStringWithAction(actionMap));
+	
+	@:to public function toString():String return toStringWithAction();
+	
+	public function debug(actionMap:ActionMap) trace(toStringWithAction(actionMap));	
 	
 	function toStringWithAction(actionMap:ActionMap = null):String 
 	{
@@ -156,19 +175,16 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 				if (inputAction.singleKeyDown != null) out += ', down -> ' + actionName(inputAction.singleKeyDown);
 				if (inputAction.singleKeyUp != null) out += ', up -> ' + actionName(inputAction.singleKeyUp);
 				#else
-				if (inputAction.multiKeyDown != null)
-					for (modifierAction in inputAction.multiKeyDown) {
+				if (inputAction.multiKeyAction != null)
+					for (multiKeyAction in inputAction.multiKeyAction) {
 						out += '\n   ';
-						if (modifierAction.keyCode > 0) out += keyCodeName(modifierAction.keyCode) + ": ";
-						out += 'down -> ' + actionName(modifierAction.action);
+						var actionState:ActionState = multiKeyAction.actionState;
+						if (multiKeyAction.keyCode > 0) out += keyCodeName(multiKeyAction.keyCode) + ": ";
+						out += '' + actionName(actionState.action);
+						//out += 'down -> ' + actionState.name;
+						out += (actionState.single) ? " (single)" : "";
 					}
 						
-				if (inputAction.multiKeyUp != null)
-					for (modifierAction in inputAction.multiKeyUp) {
-						out += '\n   ';
-						if (modifierAction.keyCode > 0) out += keyCodeName(modifierAction.keyCode) + ": ";
-						out += 'up -> ' + actionName(modifierAction.action);
-					}
 				#end
 			}
 		}
@@ -180,44 +196,59 @@ abstract InputState(Vector<InputAction>) from Vector<InputAction> to Vector<Inpu
 }
 
 
-
-
-
-private class InputAction {
+private class InputAction
+{
 	public var isDown:Bool = false;
 	
 	#if input2actions_singlekey
 	
-	public var singleKeyDown:ActionFunction = null;
-	public var singleKeyUp:ActionFunction = null;
-	//public var singleKeyRepeat:ActionFunction = null;
+	public var deviceID:Int;
+	public var singleKeyAction:ActionState = null;
 	
 	#else
-	public var downByModKey:Int = 0;
 	
-	public var multiKeyDown:Array<MultiKeyAction> = null;
-	public var multiKeyUp:Array<MultiKeyAction> = null;
-	//public var multiKeyRepeat:Array<ModifierAction> = null;
+	public var multiKeyAction:Array<MultiKeyAction> = null;
 	
 	#end
 	
-	public function new() {
-	}
+	public function new() {}
 }
-
 
 
 #if !input2actions_singlekey
-private class MultiKeyAction {
-	
-	//TODO:
-	//public var isDown:Bool = false;
-	
+
+private class MultiKeyAction 
+{
 	public var keyCode:Int;
-	public var action:ActionFunction;
-	public function new(keyCode:Int, action:ActionFunction) {
+	public var deviceID:Int;
+	public var actionState:ActionState;
+	
+	public function new(keyCode:Int, actionState:ActionState, deviceID:Int=0) {
 		this.keyCode = keyCode;
-		this.action = action;	
+		this.actionState = actionState;	
+		this.deviceID = deviceID;	
 	}
 }
+
 #end
+
+
+class ActionState {
+	public var single:Bool;
+	public var down:KeySetting;
+	public var up:KeySetting;
+	public var pressed:Int = 0;	
+	public var action:ActionFunction = null;
+	
+	public var name:String; //TODO: only for debug!
+	
+	public function new(single:Bool, down:KeySetting, up:KeySetting, action:ActionFunction, name:String) {
+		this.single = single;
+		this.down = down;
+		this.up = up;
+		this.action = action;
+		this.name = name;
+	}
+
+}
+

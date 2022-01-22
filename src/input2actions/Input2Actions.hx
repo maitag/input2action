@@ -13,6 +13,7 @@ import json2object.JsonWriter;
 
 
 import input2actions.util.EnumMacros;
+import input2actions.InputState.ActionState;
 
 /**
  * by Sylvio Sell - Rostock 2019
@@ -46,32 +47,26 @@ class Input2Actions
 	{
 		this.actionMap = actionMap;
 		
+		// Todo: minimize keyboardState vector
+		// var minKeyRangeL = 0x7fffffff;
+		// var maxKeyRangeL = 0;
+		
 		keyboardState = new InputState(MAX_USABLE_KEYCODES);
 		
-		// converting actionMap to actionVector
-		var minKeyRangeL = 0x7fffffff;
-		var maxKeyRangeL = 0;
-		
-		var actionFunction:ActionFunction;
-		var c:ActionConfig.ActionConfigItem;
-		
+		var actionFunction:ActionFunction;	
 		
 		var key:KeyCode;
 		var modkey:KeyCode;
 		
-		for (action in actionConfig.keys())
+		for (action in actionConfig)
 		{
-			trace("action:", action);
-			actionFunction = actionMap.get(action);
+			actionFunction = actionMap.get(action.action);
 			if (actionFunction != null)
 			{
-				c = actionConfig.get(action);
-				//trace(c.up);
-				//trace(c.down);
-				//trace(c.repeat);
+				var actionState = new ActionState(action.single, action.down, action.up, actionFunction, action.action);
 				
-				if (c.keyboard != null) {
-					for (keys in c.keyboard) {
+				if (action.keyboard != null) {
+					for (keys in action.keyboard) {
 						switch (keys.length)
 						{
 							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
@@ -83,12 +78,8 @@ class Input2Actions
 								#end
 							default: throw("ERROR, only one modifier key is allowed!");
 						}
-						// TODO: if down is false but up is true -> create down-handler but with null-action
-						if (c.down) keyboardState.addDownAction(actionFunction, key, modkey);
-						if (c.up) keyboardState.addUpAction(actionFunction, key, modkey);
 						
-						// TODO:
-						//if (c.repeat) keyboardState.addRepeatAction(actionFunction, key, modkey);
+						keyboardState.addAction(actionState, key, modkey);
 						
 					}
 				}

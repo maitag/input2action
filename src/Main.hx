@@ -12,13 +12,14 @@ import lime.ui.GamepadButton;
 
 
 import input2actions.InputType;
-import input2actions.ActionState;
+import input2actions.ActionType;
 import input2actions.ActionFunction;
 import input2actions.ActionMap;
 
 
 import input2actions.ActionConfig;
 import input2actions.Input2Actions;
+import input2actions.KeySetting;
 
 
 
@@ -33,9 +34,9 @@ class Main extends Application {
 		'
 		[
 			{	"action"    : "action1",
-				"down"      : "true",
-				"up"        : "false",
-				"repeat"    : "false",
+				"down"      : "ones",
+				"up"        : "none",
+				"repeat"    : "0",
 				"repeatRate": "1100",
 				"keyboard"  : "LEFT, A, LEFT_SHIFT A, RIGHT_SHIFT A",
 				"gamepad"   : "LEFT_STICK"
@@ -48,26 +49,44 @@ class Main extends Application {
 		// defined in haxe
 		var actionConfig:input2actions.ActionConfig = [
 			#if !input2actions_singlekey
-			"action2" =>
 			{
-				// TODO: something like priority or grouping,
-				// TODO: if down is false but up is true -> create down-handler but with null-action
-				down:true,	up:true, //repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.A, KeyCode.S]  ], // double-key: "a" have to press first 
+				action: "action2",  // key for ActionMap
+				
+				// multiple keys for the same action, ANY:all the time, NONE:disabled
+				down: KeySetting.ONES,  // only if the first key is pressed down
+				up:   KeySetting.ONES,  // only if the last key released up
+				
+				//repeat:10,
+				//repeatRate:1100,
+				
+				keyboard: [ 
+					[KeyCode.A, KeyCode.S], // double-key-combo ("a" have to press first)
+					KeyCode.X, KeyCode.Y    // additional single key for this action
+			    ],
+				
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
-			"action3" =>
 			{
-				down:true,
-				up:false, //repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.D, KeyCode.S]  ], // double-key: "s" have to press first 
+				action: "action3",
+				
+				//reverseKeyCombos:true, // adds also [KeyCode.S, KeyCode.D] combination
+				keyboard: [ 
+					[KeyCode.D, KeyCode.S]  // double-key-combo ("d" have to press first)
+				],
+				
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			#end
-			"action1" =>
 			{
-				down:true, up:true, //repeat:false, repeatRate:1100,
-				keyboard  : [ [KeyCode.S] ],
+				action: "action1",
+				
+				single:true, // only trigger if pressed alone and not inside of a key-combo (default is true if there is no key-combos defined)
+				
+				keyboard: [ KeyCode.S ],
+				
+				// for 2 player-setup this would gives keyboard-id 2 for "k"
+				// keyboard : [ [KeyCode.S],  [KeyCode.K]  ],
+				
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			//"switchFullscreen" =>
@@ -101,7 +120,7 @@ class Main extends Application {
 	// -------------------- Actions -------------------------------	
 	// ------------------------------------------------------------
 	
-	function action1(inputType:InputType, actionState:ActionState) 
+	function action1(inputType:InputType, actionState:ActionType) 
 	{
 		var type:String;
 		switch (inputType) {
@@ -112,14 +131,14 @@ class Main extends Application {
 		}
 		
 		switch (actionState) {
-			case (ActionState.DOWN)    : trace("action 1 - DOWN");
-			case (ActionState.UP)      : trace("action 1 - UP");
-			case (ActionState.REPEAT)  : trace("action 1 - REPEAT");
+			case (ActionType.DOWN)    : trace("action 1 - DOWN");
+			case (ActionType.UP)      : trace("action 1 - UP");
+			case (ActionType.REPEAT)  : trace("action 1 - REPEAT");
 			default: trace("error");
 		}
 	}
 	
-	function action2(inputType:InputType, actionState:ActionState) 
+	function action2(inputType:InputType, actionState:ActionType) 
 	{
 		var type:String;
 		switch (inputType) {
@@ -130,14 +149,14 @@ class Main extends Application {
 		}
 		
 		switch (actionState) {
-			case (ActionState.DOWN)    : trace("action 2 - DOWN");
-			case (ActionState.UP)      : trace("action 2 - UP");
-			case (ActionState.REPEAT)  : trace("action 2 - REPEAT");
+			case (ActionType.DOWN)    : trace("action 2 - DOWN");
+			case (ActionType.UP)      : trace("action 2 - UP");
+			case (ActionType.REPEAT)  : trace("action 2 - REPEAT");
 			default: trace("error");
 		}
 	}
 	
-	function action3(inputType:InputType, actionState:ActionState) 
+	function action3(inputType:InputType, actionState:ActionType) 
 	{
 		var type:String;
 		switch (inputType) {
@@ -148,14 +167,14 @@ class Main extends Application {
 		}
 		
 		switch (actionState) {
-			case (ActionState.DOWN)    : trace("action 3 - DOWN");
-			case (ActionState.UP)      : trace("action 3 - UP");
-			case (ActionState.REPEAT)  : trace("action 3 - REPEAT");
+			case (ActionType.DOWN)    : trace("action 3 - DOWN");
+			case (ActionType.UP)      : trace("action 3 - UP");
+			case (ActionType.REPEAT)  : trace("action 3 - REPEAT");
 			default: trace("error");
 		}
 	}
 	
-	function switchFullscreen(inputType:InputType, actionState:ActionState) {
+	function switchFullscreen(inputType:InputType, actionState:ActionType) {
 		window.fullscreen = !window.fullscreen;
 	}
 	
