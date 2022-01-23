@@ -53,15 +53,20 @@ class Main extends Application {
 				action: "action2",  // key for ActionMap
 				
 				// multiple keys for the same action, ANY:all the time, NONE:disabled
+				// #if input2actions_noMultiKeySetting
+				// down: KeySetting.ANY,  // if the ANY key is pressed down
+				// up:   KeySetting.ANY,  // if the ANY key is released up
+				// #else
 				down: KeySetting.ONES,  // only if the first key is pressed down
 				up:   KeySetting.ONES,  // only if the last key released up
+				// #end
 				
 				//repeat:10,
 				//repeatRate:1100,
 				
 				keyboard: [ 
 					[KeyCode.A, KeyCode.S], // double-key-combo ("a" have to press first)
-					KeyCode.X, KeyCode.Y    // additional single key for this action
+					KeyCode.LEFT_SHIFT, KeyCode.Y    // additional single key for this action
 			    ],
 				
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
@@ -81,8 +86,9 @@ class Main extends Application {
 				action: "action1",
 				
 				single:true, // only trigger if pressed alone and not inside of a key-combo (default is true if there is no key-combos defined)
+				// better naming: singleKeyAlone:true,
 				
-				keyboard: [ KeyCode.S ],
+				keyboard: [ KeyCode.S, KeyCode.C ],
 				
 				// for 2 player-setup this would gives keyboard-id 2 for "k"
 				// keyboard : [ [KeyCode.S],  [KeyCode.K]  ],
