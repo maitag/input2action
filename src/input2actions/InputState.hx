@@ -53,12 +53,12 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		else return keyState.isDown;
 	}
 	
-	public inline function isDownByKeyCombo(key:Int, keyState:KeyState):Bool {
+	public inline function isDownByKeyCombo(key:Int, keyState:KeyState):Bool { // <--- bugy bugy bugy (^_^)
 		var keyComboState = this.get(key);
 		if (keyComboState == null) return false;
 		else {
 			if (keyComboState.isDown) return true;
-			else {
+			else { //trace("isDownByKeyCombo", keyComboState.upDownAt, keyState.upDownAt);
 				return (keyComboState.upDownAt > keyState.upDownAt);
 			}
 		}
@@ -83,24 +83,22 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 					{
 						var actionState:ActionState = keyCombo.actionState;
 						
-						//trace("DOWN", actionState.name, actionState.pressed);
-						
-						if (!actionState.single || !called)
+						if (!actionState.single || !called) // TODO !!!
 						{					
 							switch (actionState.down) {
 								case ANY  :
-									actionState.pressed++;
+									actionState.pressed++; // TODO !!!
 									called = true;
 									actionState.action(InputType.KEYBOARD, ActionType.DOWN);
 								case ONES :
 									actionState.pressed++;
 									called = true;
-									if (actionState.pressed == 1) {
+									if (actionState.pressed == 1) { 
 										actionState.action(InputType.KEYBOARD, ActionType.DOWN);
 									}
 								default: if (actionState.up != KeySetting.NONE) actionState.pressed++; // TODO
 							}
-							if (actionState.single) break;
+							//if (actionState.single) break;
 						}
 					}
 				}
@@ -125,24 +123,24 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 					if (keyCombo.keyCode == 0 || isDownByKeyCombo(keyCombo.keyCode, keyState))
 					{
 						var actionState:ActionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
-						if (actionState.pressed > 0 )
-						{				
-							if (!actionState.single || !called) 
+						
+						if (!actionState.single || !called) // TODO !!!
+						{					
+							if (actionState.pressed > 0 )
 							{	
 								switch (actionState.up) {
 									case ANY  :
-										actionState.pressed--;
-										actionState.action(InputType.KEYBOARD, ActionType.UP);
+										actionState.pressed = 0;
 										called = true;
+										actionState.action(InputType.KEYBOARD, ActionType.UP);
 									case ONES :
 										actionState.pressed--;
+										called = true;
 										if (actionState.pressed == 0) {
 											actionState.action(InputType.KEYBOARD, ActionType.UP); 
 										}
-										called = true;
 									default: if (actionState.down != KeySetting.NONE) actionState.pressed--; // TODO
 								}						
-								if (actionState.single) break;
 							}
 						}
 					}
