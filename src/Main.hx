@@ -3,6 +3,7 @@ package;
 import input2actions.util.EnumMacros;
 import lime.app.Application;
 import lime.graphics.RenderContext;
+import lime.system.Locale;
 
 //import lime.ui.Gamepad;
 //import lime.ui.GamepadAxis;
@@ -28,6 +29,7 @@ class Main extends Application {
 		
 	public override function onWindowCreate ():Void 
 	{
+		//trace(Locale.currentLocale.language);
 /*		
 		// json2obj:
 		var actionConfigJson:ActionConfigJson =

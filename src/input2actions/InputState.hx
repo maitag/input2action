@@ -52,24 +52,11 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		if (keyState == null) return false;
 		else return keyState.isDown;
 	}
-	
-	public inline function isDownByKeyCombo(key:Int, keyState:KeyState):Bool { // <--- bugy bugy bugy (^_^)
-		var keyComboState = this.get(key);
-		if (keyComboState == null) return false;
-		else {
-			if (keyComboState.isDown) return true;
-			else { //trace("isDownByKeyCombo", keyComboState.upDownAt, keyState.upDownAt);
-				return (keyComboState.upDownAt > keyState.upDownAt);
-			}
-		}
-	}
-	
-		
+			
 	public inline function callDownActions(key:Int) {
 		var keyState = this.get(key);
 		if (keyState != null && !keyState.isDown) {
 			keyState.isDown = true;
-			keyState.upDownAt = step++;
 			
 			#if input2actions_singlekey
 			if (keyState.singleKeyAction != null) keyState.singleKeyAction.action(InputType.KEYBOARD, ActionType.DOWN); //TODO
@@ -83,22 +70,29 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 					{
 						var actionState:ActionState = keyCombo.actionState;
 						
-						if (!actionState.single || !called) // TODO !!!
+						if (!actionState.single || !called)
 						{					
 							switch (actionState.down) {
 								case ANY  :
-									actionState.pressed++; // TODO !!!
+									actionState.pressed++;
 									called = true;
+									keyCombo.downBy = true;
 									actionState.action(InputType.KEYBOARD, ActionType.DOWN);
 								case ONES :
 									actionState.pressed++;
 									called = true;
+									keyCombo.downBy = true;
 									if (actionState.pressed == 1) { 
 										actionState.action(InputType.KEYBOARD, ActionType.DOWN);
 									}
-								default: if (actionState.up != KeySetting.NONE) actionState.pressed++; // TODO
+								default: 
+									if (actionState.up != KeySetting.NONE) {
+										actionState.pressed++;
+										called = true;
+										keyCombo.downBy = true;
+									}
 							}
-							//if (actionState.single) break;
+							//if (actionState.single) break; // TODO
 						}
 					}
 				}
@@ -117,39 +111,32 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			#else
 			if (keyState.keyCombo != null)
 			{
-				var called = false;
 				for (keyCombo in keyState.keyCombo)
 				{
-					if (keyCombo.keyCode == 0 || isDownByKeyCombo(keyCombo.keyCode, keyState))
+					if (keyCombo.downBy)
 					{
+						keyCombo.downBy = false;
+						
 						var actionState:ActionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
 						
-						if (!actionState.single || !called) // TODO !!!
-						{					
-							if (actionState.pressed > 0 )
-							{	
-								switch (actionState.up) {
-									case ANY  :
-										actionState.pressed = 0;
-										called = true;
-										actionState.action(InputType.KEYBOARD, ActionType.UP);
-									case ONES :
-										actionState.pressed--;
-										called = true;
-										if (actionState.pressed == 0) {
-											actionState.action(InputType.KEYBOARD, ActionType.UP); 
-										}
-									default: if (actionState.down != KeySetting.NONE) actionState.pressed--; // TODO
-								}						
-							}
+						if (actionState.pressed > 0 )
+						{	
+							switch (actionState.up) {
+								case ANY  :
+									actionState.pressed = 0;
+									actionState.action(InputType.KEYBOARD, ActionType.UP);
+								case ONES :
+									actionState.pressed--;
+									if (actionState.pressed == 0) {
+										actionState.action(InputType.KEYBOARD, ActionType.UP); 
+									}
+								default: if (actionState.down != KeySetting.NONE) actionState.pressed--; // TODO
+							}						
 						}
 					}
 				}
 			}
 			#end
-			
-			keyState.upDownAt = step++;
-
 		}
 	}
 	
@@ -217,7 +204,6 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 private class KeyState
 {
 	public var isDown:Bool = false;
-	public var upDownAt:Int = 0; // step at what the key was pressed or released
 	
 	#if input2actions_singlekey
 	
@@ -238,6 +224,7 @@ private class KeyState
 
 private class KeyCombo 
 {
+	public var downBy:Bool = false;
 	public var keyCode:Int;
 	public var deviceID:Int;
 	public var actionState:ActionState;
