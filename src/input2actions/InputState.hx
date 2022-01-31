@@ -29,7 +29,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			this.set(key, keyState);
 		}
 		
-		#if input2actions_singlekey
+		#if input2actions_noKeyCombos
 			if (keyState.singleKeyAction != null) throw('Error, the single action to key $key is already defined');
 			keyState.singleKeyAction = actionState;
 		#else
@@ -58,41 +58,38 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		if (keyState != null && !keyState.isDown) {
 			keyState.isDown = true;
 			
-			#if input2actions_singlekey
-			if (keyState.singleKeyAction != null) keyState.singleKeyAction.action(InputType.KEYBOARD, ActionType.DOWN); //TODO
+			#if input2actions_noKeyCombos
+			if (keyState.singleKeyAction != null) {
+				var actionState:ActionState = keyState.singleKeyAction;
+				if (actionState.each) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+				else {
+					actionState.pressed++;
+					if (actionState.pressed == 1) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+				}
+			}
 			#else
 			if (keyState.keyCombo != null) 
 			{
 				var called = false;
+				var actionState:ActionState;
+				
 				for (keyCombo in keyState.keyCombo) 
 				{
 					if (keyCombo.keyCode == 0 || isDown(keyCombo.keyCode))
 					{
-						var actionState:ActionState = keyCombo.actionState;
+						actionState = keyCombo.actionState;
 						
 						if (!actionState.single || !called)
 						{					
-							switch (actionState.down) {
-								case ANY  :
-									actionState.pressed++;
-									called = true;
-									keyCombo.downBy = true;
-									actionState.action(InputType.KEYBOARD, ActionType.DOWN);
-								case ONES :
-									actionState.pressed++;
-									called = true;
-									keyCombo.downBy = true;
-									if (actionState.pressed == 1) { 
-										actionState.action(InputType.KEYBOARD, ActionType.DOWN);
-									}
-								default: 
-									if (actionState.up != KeySetting.NONE) {
-										actionState.pressed++;
-										called = true;
-										keyCombo.downBy = true;
-									}
+							called = true;
+							keyCombo.downBy = true;
+						
+							if (actionState.each) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+							else {
+								actionState.pressed++;
+								if (actionState.pressed == 1) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
 							}
-							//if (actionState.single) break; // TODO
+							if (actionState.single) break;
 						}
 					}
 				}
@@ -106,33 +103,36 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		if (keyState != null && keyState.isDown) {
 			keyState.isDown = false;
 			
-			#if input2actions_singlekey
-			if (keyState.singleKeyAction != null) keyState.singleKeyAction.action(InputType.KEYBOARD, ActionType.UP); //TODO
+			#if input2actions_noKeyCombos
+			if (keyState.singleKeyAction != null) {
+				var actionState:ActionState = keyState.singleKeyAction;
+				if (actionState.each) {
+					if (actionState.up) actionState.action(InputType.KEYBOARD, ActionType.UP);
+				}
+				else {
+					actionState.pressed--;
+					if (actionState.up && actionState.pressed == 0) actionState.action(InputType.KEYBOARD, ActionType.UP); 								
+				}						
+			}
 			#else
 			if (keyState.keyCombo != null)
 			{
+				var actionState:ActionState;
 				for (keyCombo in keyState.keyCombo)
 				{
 					if (keyCombo.downBy)
 					{
 						keyCombo.downBy = false;
 						
-						var actionState:ActionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
+						actionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
 						
-						if (actionState.pressed > 0 )
-						{	
-							switch (actionState.up) {
-								case ANY  :
-									actionState.pressed = 0;
-									actionState.action(InputType.KEYBOARD, ActionType.UP);
-								case ONES :
-									actionState.pressed--;
-									if (actionState.pressed == 0) {
-										actionState.action(InputType.KEYBOARD, ActionType.UP); 
-									}
-								default: if (actionState.down != KeySetting.NONE) actionState.pressed--; // TODO
-							}						
+						if (actionState.each) {
+							if (actionState.up) actionState.action(InputType.KEYBOARD, ActionType.UP);
 						}
+						else {
+							actionState.pressed--;
+							if (actionState.up && actionState.pressed == 0) actionState.action(InputType.KEYBOARD, ActionType.UP); 								
+						}						
 					}
 				}
 			}
@@ -178,7 +178,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 				out += Input2Actions.keyCodeName.get(Input2Actions.toKeyCode(i));
 				out += (keyState.isDown) ? " (isDown)" : " (isUp)";
 				
-				#if input2actions_singlekey
+				#if input2actions_noKeyCombos
 				if (keyState.singleKeyAction != null) out += ' -> ' + actionName(keyState.singleKeyAction.action);
 				#else
 				if (keyState.keyCombo != null)
@@ -205,7 +205,7 @@ private class KeyState
 {
 	public var isDown:Bool = false;
 	
-	#if input2actions_singlekey
+	#if input2actions_noKeyCombos
 	
 	public var deviceID:Int;
 	public var singleKeyAction:ActionState = null;
@@ -220,7 +220,7 @@ private class KeyState
 }
 
 
-#if !input2actions_singlekey
+#if !input2actions_noKeyCombos
 
 private class KeyCombo 
 {
@@ -240,18 +240,19 @@ private class KeyCombo
 
 
 class ActionState {
+	public var up:Bool;
+	public var each:Bool;
 	public var single:Bool;
-	public var down:KeySetting;
-	public var up:KeySetting;
+	
 	public var pressed:Int = 0;	
 	public var action:ActionFunction = null;
 	
 	public var name:String; //TODO: only for debug!
 	
-	public function new(single:Bool, down:KeySetting, up:KeySetting, action:ActionFunction, name:String) {
-		this.single = single;
-		this.down = down;
+	public function new(up:Bool, each:Bool, single:Bool, action:ActionFunction, name:String) {
 		this.up = up;
+		this.each = each;
+		this.single = single;
 		this.action = action;
 		this.name = name;
 	}

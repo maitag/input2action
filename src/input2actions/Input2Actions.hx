@@ -63,7 +63,7 @@ class Input2Actions
 			actionFunction = actionMap.get(action.action);
 			if (actionFunction != null)
 			{
-				var actionState = new ActionState(action.single, action.down, action.up, actionFunction, action.action);
+				var actionState = new ActionState(action.up, action.each, action.single, actionFunction, action.action);
 				
 				if (action.keyboard != null) {
 					for (keys in action.keyboard) {

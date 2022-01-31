@@ -25,13 +25,9 @@ typedef ActionConfig = Array<ActionConfigItem>;
 class ActionConfigItem {
 	public var action:String;
 	
+	public var up:Bool = false;
+	public var each:Bool = false;	
 	public var single:Bool = false;
-	
-	public var down:KeySetting = KeySetting.ONES;
-	public var up:KeySetting = KeySetting.ONES;
-	
-	public var repeat:Int = 0;
-	public var repeatRate:Int = 10;
 	
 	public var keyboard:NestedArray<KeyCode> = null;
 	public var gamepad :NestedArray<GamepadButton> = null;

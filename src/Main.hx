@@ -20,7 +20,6 @@ import input2actions.ActionMap;
 
 import input2actions.ActionConfig;
 import input2actions.Input2Actions;
-import input2actions.KeySetting;
 
 
 
@@ -36,10 +35,9 @@ class Main extends Application {
 		'
 		[
 			{	"action"    : "action1",
-				"down"      : "ones",
-				"up"        : "none",
-				"repeat"    : "0",
-				"repeatRate": "1100",
+				"up"        : "true",
+				"each"      : "false",
+				"single"    : "false",
 				"keyboard"  : "LEFT, A, LEFT_SHIFT A, RIGHT_SHIFT A",
 				"gamepad"   : "LEFT_STICK"
 			}
@@ -50,45 +48,48 @@ class Main extends Application {
 
 		// defined in haxe
 		var actionConfig:input2actions.ActionConfig = [
-			#if !input2actions_singlekey
 			{
 				action: "action2",  // key for ActionMap
 				
-				// multiple keys for the same action, ANY:all the time, NONE:disabled
-				// #if input2actions_noMultiKeySetting
-				// down: KeySetting.ANY,  // if the ANY key is pressed down
-				// up:   KeySetting.ANY,  // if the ANY key is released up
-				// #else
-				down: KeySetting.ONES,  // only if the first key is pressed down
-				up:   KeySetting.ONES,  // only if the last key released up
-				// #end
+				// TODO: set defaults and let force it also outside of config/json !
+
+				// halfwheat: "it is the old phrase; what goes up must come down
+				// or as we used to say when going down a cave; what goes down must come UP!"
+				up: true,  // enables key/button "up"-event
 				
-				//repeat:10,
-				//repeatRate:1100,
-				
+				// if multiple keys pressed/released together:
+				// each: false, // (default) "down"-event fires only for the first key/button, "up"-event only after the last key/button is released
+				// each: true, // fire events for each key/button
+			
 				keyboard: [ 
-					[KeyCode.A, KeyCode.S], // double-key-combo ("a" have to press first)
-					KeyCode.LEFT_SHIFT, KeyCode.Y    // additional single key for this action
+					#if !input2actions_noKeyCombos
+					[KeyCode.A, KeyCode.S], // key-combo ("a" have to press first)
+					#end
+					KeyCode.LEFT_SHIFT, KeyCode.Y    // additional multiple single keys for this action
 			    ],
 				
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
 			{
 				action: "action3",
+				up: true,  // enables key/button "up" event
 				
-				//reverseKeyCombos:true, // adds also [KeyCode.S, KeyCode.D] combination
+				// TODO: reverseCombo:true, // adds also [KeyCode.S, KeyCode.D] combination
 				keyboard: [ 
-					[KeyCode.D, KeyCode.S]  // double-key-combo ("d" have to press first)
+					#if !input2actions_noKeyCombos
+					[KeyCode.D, KeyCode.S],  // key-combo ("d" have to press first)
+					#else
+					KeyCode.D,    // additional multiple single keys for this action
+					#end
 				],
 				
 				//gamepad   : [ GamepadButton.LEFT_STICK ]
 			},
-			#end
 			{
 				action: "action1",
+				up: true,  // enables key/button "up" event
 				
-				single:true, // only trigger if pressed alone and not inside of a key-combo (default is true if there is no key-combos defined)
-				// better naming: singleKeyAlone:true,
+				single:true, // only trigger if pressed alone and not if there is also another key-combo action for this keys (false by default)
 				
 				keyboard: [ KeyCode.S, KeyCode.C ],
 				
@@ -115,7 +116,18 @@ class Main extends Application {
 		
 		
 		var input2Actions = new Input2Actions(actionConfig, actionMap);
-
+/*
+		// set defaults or force to values
+		var input2Actions = new Input2Actions(actionConfig, actionMap, {
+			up:true, // default value for "up" if it is not defined
+			forceUp:true, // force to "up"-default-value even if it is defined
+			each:false,
+			forceEach:false,
+			single:true,
+			forceSingle:true,
+		});
+*/
+		
 		//input2Actions.config(actionConfig, actionMap);
 		
 		input2Actions.enable(window);
