@@ -1,23 +1,19 @@
 package;
 
-import input2actions.util.EnumMacros;
 import lime.app.Application;
 import lime.graphics.RenderContext;
 import lime.system.Locale;
 
-//import lime.ui.Gamepad;
-//import lime.ui.GamepadAxis;
 
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
+//import lime.ui.Gamepad;
+//import lime.ui.GamepadAxis;
 
-
-import input2actions.InputType;
-import input2actions.ActionFunction;
-import input2actions.ActionMap;
 
 
 import input2actions.ActionConfig;
+import input2actions.ActionMap;
 import input2actions.Input2Actions;
 
 
@@ -43,10 +39,10 @@ class Main extends Application {
 */		
 		//var actionConfig:ActionConfig = actionConfigJson;
 
-		// defined in haxe
-		var actionConfig:input2actions.ActionConfig = [
+		// defined in haxe:
+		var actionConfig:ActionConfig = [
 			{
-				action: "action2",  // key for ActionMap				
+				action: "action1",  // key for ActionMap				
 				keyboard: [ 
 					#if !input2actions_noKeyCombos
 					[KeyCode.A, KeyCode.S], // key-combo ("a" have to press first)
@@ -56,7 +52,7 @@ class Main extends Application {
 				gamepad: [ GamepadButton.A ]
 			},
 			{
-				action: "action3",
+				action: "action2",
 				// TODO: reverseCombo:true, // adds also [KeyCode.S, KeyCode.D] combination
 				keyboard: [ 
 					#if !input2actions_noKeyCombos
@@ -68,17 +64,14 @@ class Main extends Application {
 				gamepad: [ GamepadButton.B ]
 			},
 			{
-				action: "action1",
+				action: "action3",
 				
 				// only trigger if pressed alone and not if there is also another key-combo action for this keys
 				single:true, // (false by default)
 				
 				keyboard: [ KeyCode.S, KeyCode.C ],
-				
-				// for 2 player-setup this would gives keyboard-id 2 for "k"
-				// keyboard : [ [KeyCode.S],  [KeyCode.K]  ],
-				
 				gamepad: [ GamepadButton.X, GamepadButton.Y ]
+				
 			},
 			{
 				action: "switchFullscreen",
@@ -86,12 +79,35 @@ class Main extends Application {
 			},
 		];
 		
-		//var actionConfigJson:ActionConfigJson = actionConfig;
-		//trace(actionConfigJson);
+		// Player 0 bindings
+		var actionConfigPlayer0:ActionConfig = [
+			{	action: "action1",
+				keyboard: [ KeyCode.LEFT_SHIFT ],
+			},
+		];
+		
+		// Player 1 bindings
+		var actionConfigPlayer1:ActionConfig = [
+			{	action: "action1",
+				keyboard: [ KeyCode.RIGHT_SHIFT ],
+			},
+			{	action: "action2",
+				keyboard: [ KeyCode.L ],				
+			},
+			{	action: "action3",
+				single:false,
+				keyboard: [ KeyCode.M ],
+				gamepad: [ GamepadButton.DPAD_LEFT ],			
+			},
+		];
+		
+		
+		// ------ mapping to the action-function-references
 		
 		var actionMap:ActionMap = [
 			"action1" => {
 				action:action1,
+				//actionAxis:actionAxis1,
 				up: true,  // enables key/button "up"-event
 				
 				// if multiple keys pressed/released together:
@@ -104,21 +120,33 @@ class Main extends Application {
 		];
 		
 		
-		var input2Actions = new Input2Actions(actionConfig, actionMap);
 /*
 		// TODO: set defaults and let force it also outside of config/json !
 
-		var input2Actions = new Input2Actions(actionConfig, actionMap, {
-			up:true, // default value for "up" if it is not defined
-			forceUp:true, // force to "up"-default-value even if it is defined
-			each:false,
-			forceEach:false,
+		actionConfig.defaults({
 			single:true,
 			forceSingle:true,
 		});
+		
+		actionConfig.force({
+			single:true,
+			forceSingle:true,
+		});
+		
+		//trace(actionConfig.toJson);
 */
 		
+		// TODO:
+		//var input2Actions = new Input2Actions([actionConfigPlayer0, actionConfigPlayer1], actionMap);
+		var input2Actions = new Input2Actions(actionConfig, actionMap);
+		
+		
+		// TODO: assigning a new shortcut for
+
 		//input2Actions.config(actionConfig, actionMap);
+		
+		// TODO: save the modified config into json
+		
 		
 		input2Actions.enable(window);
 		//input2Actions.disable(window);

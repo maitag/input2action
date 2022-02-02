@@ -39,18 +39,18 @@ class Input2Actions
 		var key:Int;
 		var modkey:Int;
 		
-		for (action in actionConfig)
+		for (actionConfigItem in actionConfig)
 		{
-			actionMapItem = actionMap.get(action.action);
+			actionMapItem = actionMap.get(actionConfigItem.action);
 			
 			if (actionMapItem.action != null)
 			{
-				var actionState = new ActionState(actionMapItem.up, actionMapItem.each, action.single, actionMapItem.action #if input2actions_debug ,action.action #end);
+				var actionState = new ActionState(actionMapItem.up, actionMapItem.each, actionConfigItem.single, actionMapItem.action #if input2actions_debug ,actionConfigItem.action #end);
 				
 				// ---- keyboard ----
 				
-				if (action.keyboard != null) {
-					for (keys in action.keyboard) {
+				if (actionConfigItem.keyboard != null) {
+					for (keys in actionConfigItem.keyboard) {
 						switch (keys.length)
 						{
 							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
@@ -68,8 +68,8 @@ class Input2Actions
 				
 				// ---- gamepad ----
 				
-				if (action.gamepad != null) {
-					for (keys in action.gamepad) {
+				if (actionConfigItem.gamepad != null) {
+					for (keys in actionConfigItem.gamepad) {
 						switch (keys.length)
 						{
 							case 1:	key = keys[0]; modkey = 0; 
@@ -177,7 +177,7 @@ class Input2Actions
 		
 	inline function gamepadDisconnect (gamepad:Gamepad):Void 
 	{		
-		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", ", gamepad.name);	
+		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", "+ gamepad.name);	
 		gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad));
 		gamepad.onButtonDown.remove(gamepadButtonDown);
 		gamepad.onButtonUp.remove(gamepadButtonUp);

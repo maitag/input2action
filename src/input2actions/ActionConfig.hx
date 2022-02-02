@@ -5,7 +5,7 @@ import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
 
 typedef ActionConfig = Array<ActionConfigItem>;
-
+// TODO: own abstract Array and extra spice to set defaults or force config values
 
 /*typedef ActionConfigItem = {
 	action:String,
