@@ -5,14 +5,11 @@ import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
 
 typedef ActionConfig = Array<ActionConfigItem>;
-//typedef ActionConfig = Map<String, ActionConfigItem>;
 
 
 /*typedef ActionConfigItem = {
-	?down:Bool,
-	?up:Bool,
-	?repeat:Bool,
-	?repeatRate:Int,
+	action:String,
+	?single:Bool,
 	
 	?keyboard:NestedArray<KeyCode>,
 	?gamepad :NestedArray<GamepadButton>,
@@ -25,8 +22,6 @@ typedef ActionConfig = Array<ActionConfigItem>;
 class ActionConfigItem {
 	public var action:String;
 	
-	public var up:Bool = false;
-	public var each:Bool = false;	
 	public var single:Bool = false;
 	
 	public var keyboard:NestedArray<KeyCode> = null;

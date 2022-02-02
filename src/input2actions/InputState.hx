@@ -84,10 +84,10 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 							called = true;
 							keyCombo.downBy = true;
 						
-							if (actionState.each) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+							if (actionState.each) actionState.action(false, 0);
 							else {
 								actionState.pressed++;
-								if (actionState.pressed == 1) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+								if (actionState.pressed == 1) actionState.action(false, 0);
 							}
 							if (actionState.single) break;
 						}
@@ -111,7 +111,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 				}
 				else {
 					actionState.pressed--;
-					if (actionState.up && actionState.pressed == 0) actionState.action(InputType.KEYBOARD, ActionType.UP); 								
+					if (actionState.up && actionState.pressed == 0) actionState.action(true, 0); 								
 				}						
 			}
 			#else
@@ -127,11 +127,11 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 						actionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
 						
 						if (actionState.each) {
-							if (actionState.up) actionState.action(InputType.KEYBOARD, ActionType.UP);
+							if (actionState.up) actionState.action(true, 0);
 						}
 						else {
 							actionState.pressed--;
-							if (actionState.up && actionState.pressed == 0) actionState.action(InputType.KEYBOARD, ActionType.UP); 								
+							if (actionState.up && actionState.pressed == 0) actionState.action(true, 0); 								
 						}						
 					}
 				}
@@ -141,35 +141,21 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 	}
 	
 	
-	@:to public function toString():String return toStringWithAction();
-	
-	public function debug(actionMap:ActionMap) trace(toStringWithAction(actionMap));	
-	
-	function toStringWithAction(actionMap:ActionMap = null):String 
+	@:to public function toString():String 
 	{
-		var actionNames:Array<String> = null;
-		var actionValues:Array<ActionFunction> = null;
-		if (actionMap != null) {
-			actionNames = [];
-			actionValues = [];
-			for (name => action in actionMap) {
-				actionNames.push(name);
-				actionValues.push(action);
-			}
-		}
-		
 		var out = "";
 		
-		var actionName = function(action:ActionFunction):Dynamic {
-			if (actionMap != null)
-				return actionNames[actionValues.indexOf(action)];
-			else return action;
+		var actionName = function(actionState:ActionState):String {
+			#if input2actions_debug
+			return actionState.name;
+			#else
+			return Std.string(actionState.action);
+			#end
 		}
 
 		var keyCodeName = function(key:Int):String {
 			return Input2Actions.keyCodeName.get( Input2Actions.toKeyCode(key) );
 		}
-
 		
 		for (i in 0...this.length) {
 			var keyState = this.get(i);
@@ -179,18 +165,16 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 				out += (keyState.isDown) ? " (isDown)" : " (isUp)";
 				
 				#if input2actions_noKeyCombos
-				if (keyState.singleKeyAction != null) out += ' -> ' + actionName(keyState.singleKeyAction.action);
+				if (keyState.singleKeyAction != null) out += ' -> ' + actionName(keyState.singleKeyAction);
 				#else
 				if (keyState.keyCombo != null)
 					for (keyCombo in keyState.keyCombo) {
 						out += '\n   ';
 						var actionState:ActionState = keyCombo.actionState;
 						if (keyCombo.keyCode > 0) out += keyCodeName(keyCombo.keyCode) + ": ";
-						out += '' + actionName(actionState.action);
-						//out += 'down -> ' + actionState.name;
+						out += '' +  actionName(actionState);
 						out += (actionState.single) ? " (single)" : "";
-					}
-						
+					}						
 				#end
 			}
 		}
@@ -247,14 +231,18 @@ class ActionState {
 	public var pressed:Int = 0;	
 	public var action:ActionFunction = null;
 	
+	#if input2actions_debug
 	public var name:String; //TODO: only for debug!
+	#end
 	
-	public function new(up:Bool, each:Bool, single:Bool, action:ActionFunction, name:String) {
+	public function new(up:Bool, each:Bool, single:Bool, action:ActionFunction #if input2actions_debug , name:String #end) {
 		this.up = up;
 		this.each = each;
 		this.single = single;
 		this.action = action;
+		#if input2actions_debug 
 		this.name = name;
+		#end
 	}
 
 }

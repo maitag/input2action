@@ -10,6 +10,9 @@
 	<haxelib name="lime" />
 	<haxelib name="json2object" />
 	
+	<!-- to output action names while debugging InputState -->
+	<haxedef name="input2actions_debug" />
+	
 	<!-- optimize if no need of key-combinations: -->
 	<!-- <haxedef name="input2actions_noKeyCombos" />  -->
 		

@@ -1,3 +1,3 @@
 package input2actions;
 
-typedef ActionFunction = InputType->ActionType->Void;
+typedef ActionFunction = Bool->Int->Void;

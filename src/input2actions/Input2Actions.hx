@@ -22,6 +22,98 @@ import input2actions.InputState.ActionState;
 
 class Input2Actions 
 {
+	public var actionMap(default, null):ActionMap;
+	
+	public function new(actionConfig:ActionConfig, actionMap:ActionMap ) 
+	{
+		this.actionMap = actionMap;
+		
+		// Todo: minimize keyboardState vector
+		// var minKeyRangeL = 0x7fffffff;
+		// var maxKeyRangeL = 0;
+		
+		keyboardState = new InputState(MAX_USABLE_KEYCODES);
+		gamepadState = new InputState(GamepadButton.DPAD_RIGHT + 1);
+		
+		var actionMapItem:ActionMapItem;			
+		var key:Int;
+		var modkey:Int;
+		
+		for (action in actionConfig)
+		{
+			actionMapItem = actionMap.get(action.action);
+			
+			if (actionMapItem.action != null)
+			{
+				var actionState = new ActionState(actionMapItem.up, actionMapItem.each, action.single, actionMapItem.action #if input2actions_debug ,action.action #end);
+				
+				// ---- keyboard ----
+				
+				if (action.keyboard != null) {
+					for (keys in action.keyboard) {
+						switch (keys.length)
+						{
+							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
+							case 2:	
+								#if input2actions_singlekey
+								throw('ERROR, multiple keys is disabled by compiler define: "input2actions_singlekey"');
+								#else
+								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
+								#end
+							default: throw("ERROR, only one modifier key is allowed!");
+						}						
+						keyboardState.addAction(actionState, key, modkey);						
+					}
+				}
+				
+				// ---- gamepad ----
+				
+				if (action.gamepad != null) {
+					for (keys in action.gamepad) {
+						switch (keys.length)
+						{
+							case 1:	key = keys[0]; modkey = 0; 
+							case 2:	
+								#if input2actions_singlekey
+								throw('ERROR, multiple keys is disabled by compiler define: "input2actions_singlekey"');
+								#else
+								key = keys[1]; modkey = keys[0];
+								#end
+							default: throw("ERROR, only one modifier key is allowed!");
+						}						
+						gamepadState.addAction(actionState, key, modkey);						
+					}
+				}
+				
+			}
+		}
+		
+		// debug
+		trace(keyboardState);
+		
+		
+	}
+	
+	public function enable(window:Window) {
+		window.onKeyDown.add(keyDown);
+		window.onKeyUp.add(keyUp);
+		
+		for (gamepad in Gamepad.devices) gamepadConnect(gamepad);
+		Gamepad.onConnect.add(gamepadConnect);
+		//Gamepad.addMappings(["", ""]);
+		//Joystick.onConnect.add(joystickConnectActive);
+		
+	}
+	
+	public function disable(window:Window) {
+		window.onKeyDown.remove(keyDown);
+		window.onKeyUp.remove(keyUp);
+	}
+	
+	
+	
+	// ---------------- Keyboard -----------------------------
+	
 	public static var keyCodeName(default, never) = EnumMacros.nameByValue(KeyCode);
 	public static var keyCodeValue(default, never) = EnumMacros.valueByName(KeyCode);
 	
@@ -41,72 +133,9 @@ class Input2Actions
 		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
 	}
 	
-	public var actionMap(default, null):ActionMap;
-	
-	public function new(actionConfig:ActionConfig, actionMap:ActionMap ) 
-	{
-		this.actionMap = actionMap;
-		
-		// Todo: minimize keyboardState vector
-		// var minKeyRangeL = 0x7fffffff;
-		// var maxKeyRangeL = 0;
-		
-		keyboardState = new InputState(MAX_USABLE_KEYCODES);
-		
-		var actionFunction:ActionFunction;	
-		
-		var key:KeyCode;
-		var modkey:KeyCode;
-		
-		for (action in actionConfig)
-		{
-			actionFunction = actionMap.get(action.action);
-			if (actionFunction != null)
-			{
-				var actionState = new ActionState(action.up, action.each, action.single, actionFunction, action.action);
-				
-				if (action.keyboard != null) {
-					for (keys in action.keyboard) {
-						switch (keys.length)
-						{
-							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
-							case 2:	
-								#if input2actions_singlekey
-								throw('ERROR, multiple keys is disabled by compiler define: "input2actions_singlekey"');
-								#else
-								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
-								#end
-							default: throw("ERROR, only one modifier key is allowed!");
-						}
-						
-						keyboardState.addAction(actionState, key, modkey);
-						
-					}
-				}
-				
-			}
-		}
-		
-		keyboardState.debug(actionMap);
-	}
-	
-	public function enable(window:Window) {
-		window.onKeyDown.add(keyDown);
-		window.onKeyUp.add(keyUp);
-	}
-	
-	public function disable(window:Window) {
-		window.onKeyDown.remove(keyDown);
-		window.onKeyUp.remove(keyUp);
-	}
-	
-	
-	
-	// ---------------- Keyboard -----------------------------
-	var lastKeyDown:KeyCode = 0; // only for debugging
 	inline function keyDown(key:KeyCode, _):Void
 	{
-		//trace("keydown:",StringTools.hex(fromKeyCode(Std.int(key))));
+		//trace("keyDown:",StringTools.hex(fromKeyCode(Std.int(key))));
 
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
 		
@@ -115,45 +144,74 @@ class Input2Actions
 		#else
 		keyboardState.callDownActions( fromKeyCode(key) );
 		#end
-		
-		//if (key != lastKeyDown) {  trace("-- KeyDOWN --");keyboardState.debug(actionMap); lastKeyDown = key; }
 	}
 	
 	inline function keyUp(key:KeyCode, _):Void
 	{
-		//trace("keyup:",StringTools.hex(fromKeyCode(Std.int(key))));
-
 		#if neko // TODO: check later into lime > 7.9.0	
 		keyboardState.callUpActions( fromKeyCode(Std.int(key)) );
 		#else
 		keyboardState.callUpActions( fromKeyCode(key) );
 		#end
-		
-		//trace("--- KeyUP ---"); keyboardState.debug(actionMap);
 	}
 	
 	
 	
 	// ---------------- GamePad -----------------------------
 	
-	
-	function onGamepadConnect (gamepad:Gamepad):Void {
-		
-		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.name);
-		
-	}
-	
-	
-	function onGamepadDisconnect (gamepad:Gamepad):Void {
-		
-		trace ("Gamepad disconnected: " + gamepad.id);
-		
-	}
-	
-	function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void {
-		
-		switch (axis) {
+	var gamepadState:InputState;
+
+	public static var gamepadButtonName(default, never) = EnumMacros.nameByValue(GamepadButton);
+	public static var gamepadButtonValue(default, never) = EnumMacros.valueByName(GamepadButton);
 			
+	inline function gamepadConnect (gamepad:Gamepad):Void
+	{
+		
+		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);
+		gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad));
+		gamepad.onButtonDown.add(gamepadButtonDown);
+		gamepad.onButtonUp.add(gamepadButtonUp);
+		gamepad.onAxisMove.add(gamepadAxisMove.bind(gamepad, _));
+		
+	}
+		
+	inline function gamepadDisconnect (gamepad:Gamepad):Void 
+	{		
+		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", ", gamepad.name);	
+		gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad));
+		gamepad.onButtonDown.remove(gamepadButtonDown);
+		gamepad.onButtonUp.remove(gamepadButtonUp);
+		gamepad.onAxisMove.remove(gamepadAxisMove.bind(gamepad, _));
+		gamepad = null;
+	}
+	
+	inline function gamepadButtonDown(button:GamepadButton):Void
+	{
+		//trace("gamepadButtonDown:",Std.int(button));
+		#if neko // TODO: check later into lime > 7.9.0
+		gamepadState.callDownActions( Std.int(button) );
+		#else
+		gamepadState.callDownActions( button );
+		#end
+	}
+	
+	inline function gamepadButtonUp(button:GamepadButton):Void
+	{
+		#if neko // TODO: check later into lime > 7.9.0	
+		gamepadState.callUpActions( Std.int(button) );
+		#else
+		gamepadState.callUpActions( button );
+		#end
+	}
+
+	inline function gamepadAxisMove(gamepad:Gamepad, axis:GamepadAxis, value:Float):Void
+	{	
+		if (value < -0.5) {
+			//trace (axis, value);					
+		} else if (value > 0.5) {
+			//trace (axis, value);
+		}
+/*		switch (axis) {		
 			case GamepadAxis.LEFT_X:
 				
 				if (value < -0.5) {
@@ -170,10 +228,9 @@ class Input2Actions
 					trace ("axis down");
 				}
 			
-			default:
-			
+			default:		
 		}
-		
+*/		
 	}
 	
 	

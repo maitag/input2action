@@ -13,7 +13,6 @@ import lime.ui.GamepadButton;
 
 
 import input2actions.InputType;
-import input2actions.ActionType;
 import input2actions.ActionFunction;
 import input2actions.ActionMap;
 
@@ -35,8 +34,6 @@ class Main extends Application {
 		'
 		[
 			{	"action"    : "action1",
-				"up"        : "true",
-				"each"      : "false",
 				"single"    : "false",
 				"keyboard"  : "LEFT, A, LEFT_SHIFT A, RIGHT_SHIFT A",
 				"gamepad"   : "LEFT_STICK"
@@ -49,31 +46,17 @@ class Main extends Application {
 		// defined in haxe
 		var actionConfig:input2actions.ActionConfig = [
 			{
-				action: "action2",  // key for ActionMap
-				
-				// TODO: set defaults and let force it also outside of config/json !
-
-				// halfwheat: "it is the old phrase; what goes up must come down
-				// or as we used to say when going down a cave; what goes down must come UP!"
-				up: true,  // enables key/button "up"-event
-				
-				// if multiple keys pressed/released together:
-				// each: false, // (default) "down"-event fires only for the first key/button, "up"-event only after the last key/button is released
-				// each: true, // fire events for each key/button
-			
+				action: "action2",  // key for ActionMap				
 				keyboard: [ 
 					#if !input2actions_noKeyCombos
 					[KeyCode.A, KeyCode.S], // key-combo ("a" have to press first)
 					#end
 					KeyCode.LEFT_SHIFT, KeyCode.Y    // additional multiple single keys for this action
-			    ],
-				
-				//gamepad   : [ GamepadButton.LEFT_STICK ]
+			    ],				
+				gamepad: [ GamepadButton.A ]
 			},
 			{
 				action: "action3",
-				up: true,  // enables key/button "up" event
-				
 				// TODO: reverseCombo:true, // adds also [KeyCode.S, KeyCode.D] combination
 				keyboard: [ 
 					#if !input2actions_noKeyCombos
@@ -81,43 +64,50 @@ class Main extends Application {
 					#else
 					KeyCode.D,    // additional multiple single keys for this action
 					#end
-				],
-				
-				//gamepad   : [ GamepadButton.LEFT_STICK ]
+				],				
+				gamepad: [ GamepadButton.B ]
 			},
 			{
 				action: "action1",
-				up: true,  // enables key/button "up" event
 				
-				single:true, // only trigger if pressed alone and not if there is also another key-combo action for this keys (false by default)
+				// only trigger if pressed alone and not if there is also another key-combo action for this keys
+				single:true, // (false by default)
 				
 				keyboard: [ KeyCode.S, KeyCode.C ],
 				
 				// for 2 player-setup this would gives keyboard-id 2 for "k"
 				// keyboard : [ [KeyCode.S],  [KeyCode.K]  ],
 				
-				//gamepad   : [ GamepadButton.LEFT_STICK ]
+				gamepad: [ GamepadButton.X, GamepadButton.Y ]
 			},
-			//"switchFullscreen" =>
-			//{
-				//keyboard  : [ KeyCode.F ],
-			//},
+			{
+				action: "switchFullscreen",
+				keyboard: [ KeyCode.F ],
+			},
 		];
 		
 		//var actionConfigJson:ActionConfigJson = actionConfig;
 		//trace(actionConfigJson);
 		
 		var actionMap:ActionMap = [
-			"action1" => action1,
-			"action2" => action2,
-			"action3" => action3,
-			"switchFullscreen" => switchFullscreen,
+			"action1" => {
+				action:action1,
+				up: true,  // enables key/button "up"-event
+				
+				// if multiple keys pressed/released together:
+				// each: false, // (default) "down"-event fires only for the first key/button, "up"-event only after the last key/button is released
+				each: true // fire events for each key/button			
+			},
+			"action2" => {action:action2},
+			"action3" => {action:action3},
+			"switchFullscreen" => {action:switchFullscreen},
 		];
 		
 		
 		var input2Actions = new Input2Actions(actionConfig, actionMap);
 /*
-		// set defaults or force to values
+		// TODO: set defaults and let force it also outside of config/json !
+
 		var input2Actions = new Input2Actions(actionConfig, actionMap, {
 			up:true, // default value for "up" if it is not defined
 			forceUp:true, // force to "up"-default-value even if it is defined
@@ -140,61 +130,22 @@ class Main extends Application {
 	// -------------------- Actions -------------------------------	
 	// ------------------------------------------------------------
 	
-	function action1(inputType:InputType, actionState:ActionType) 
+	function action1(isUp:Bool, player:Int) 
 	{
-		var type:String;
-		switch (inputType) {
-			case (InputType.KEYBOARD) : type = "Keyboard";
-			case (InputType.GAMEPAD)  : type = "GamePad";
-			case (InputType.JOYSTICK) : type = "JoyStick";
-			default: type = "unknown";
-		}
-		
-		switch (actionState) {
-			case (ActionType.DOWN)    : trace("action 1 - DOWN");
-			case (ActionType.UP)      : trace("action 1 - UP");
-			case (ActionType.REPEAT)  : trace("action 1 - REPEAT");
-			default: trace("error");
-		}
+		trace('action 1 - ${(isUp) ? "UP" : "DOWN"}, player:$player');
 	}
 	
-	function action2(inputType:InputType, actionState:ActionType) 
+	function action2(isUp:Bool, player:Int) 
 	{
-		var type:String;
-		switch (inputType) {
-			case (InputType.KEYBOARD) : type = "Keyboard";
-			case (InputType.GAMEPAD)  : type = "GamePad";
-			case (InputType.JOYSTICK) : type = "JoyStick";
-			default: type = "unknown";
-		}
-		
-		switch (actionState) {
-			case (ActionType.DOWN)    : trace("action 2 - DOWN");
-			case (ActionType.UP)      : trace("action 2 - UP");
-			case (ActionType.REPEAT)  : trace("action 2 - REPEAT");
-			default: trace("error");
-		}
+		trace('action 2 - ${(isUp) ? "UP" : "DOWN"}, player:$player');
 	}
 	
-	function action3(inputType:InputType, actionState:ActionType) 
+	function action3(isUp:Bool, player:Int) 
 	{
-		var type:String;
-		switch (inputType) {
-			case (InputType.KEYBOARD) : type = "Keyboard";
-			case (InputType.GAMEPAD)  : type = "GamePad";
-			case (InputType.JOYSTICK) : type = "JoyStick";
-			default: type = "unknown";
-		}
-		
-		switch (actionState) {
-			case (ActionType.DOWN)    : trace("action 3 - DOWN");
-			case (ActionType.UP)      : trace("action 3 - UP");
-			case (ActionType.REPEAT)  : trace("action 3 - REPEAT");
-			default: trace("error");
-		}
+		trace('action 3 - ${(isUp) ? "UP" : "DOWN"}, player:$player');
 	}
 	
-	function switchFullscreen(inputType:InputType, actionState:ActionType) {
+	function switchFullscreen(isUp:Bool, player:Int) {
 		window.fullscreen = !window.fullscreen;
 	}
 	
