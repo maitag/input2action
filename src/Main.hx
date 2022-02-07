@@ -136,14 +136,43 @@ class Main extends Application {
 		//trace(actionConfig.toJson);
 */
 		
-		// TODO:
-		//var input2Actions = new Input2Actions([actionConfigPlayer0, actionConfigPlayer1], actionMap);
 		var input2Actions = new Input2Actions(actionConfig, actionMap);
+		// TODO:
+		// var maxPlayer = 8;
+		//var input2Actions = new Input2Actions(actionConfigDefault, actionMap , maxPlayer, noDeviceconnectByDefault);
 		
+		// set keyboard bindings for player 0
+		//input2Actions.set(0, actionConfig0);
 		
-		// TODO: assigning a new shortcut for
+		// event handler for new plugged gamepads
+		//input2Actions.onGamePadConnect() = function(gamepad:GamePad) {
+		//    //if (game.addPlayer()) ... // check for available players
+		//    // set keyboard and gamepad for player 1
+		//    input2Actions.setGamepad(1, gamepad, actionConfig1);
+		//}
 
-		//input2Actions.config(actionConfig, actionMap);
+		//input2Actions.onGamePadDisconnect() = function(player:Int) {
+		//    input2Actions.removeGamepad(1);
+		//    //game.playerDisconnected(1);
+		//}
+		
+		
+		// update only the keyboard bindings for player 1
+		//input2Actions.set(1, actionConfig1);
+		
+		
+		//input2Actions.setJoystick(2, joystick, actionConfig2);
+
+		// swap input of player 0 and player 1
+		// input2Actions.swap(0, 1)
+		
+		// disable and enable input of player 1
+		//input2Actions.disable(1);
+		//input2Actions.enable(1);
+		
+
+		
+		
 		
 		// TODO: save the modified config into json
 		
@@ -158,19 +187,19 @@ class Main extends Application {
 	// -------------------- Actions -------------------------------	
 	// ------------------------------------------------------------
 	
-	function action1(isUp:Bool, player:Int) 
+	function action1(isDown:Bool, player:Int) 
 	{
-		trace('action 1 - ${(isUp) ? "UP" : "DOWN"}, player:$player');
+		trace('action 1 - ${(isDown) ? "DOWN" : "UP"}, player:$player');
 	}
 	
-	function action2(isUp:Bool, player:Int) 
+	function action2(isDown:Bool, player:Int) 
 	{
-		trace('action 2 - ${(isUp) ? "UP" : "DOWN"}, player:$player');
+		trace('action 2 - ${(isDown) ? "DOWN" : "UP"}, player:$player');
 	}
 	
-	function action3(isUp:Bool, player:Int) 
+	function action3(isDown:Bool, player:Int) 
 	{
-		trace('action 3 - ${(isUp) ? "UP" : "DOWN"}, player:$player');
+		trace('action 3 - ${(isDown) ? "DOWN" : "UP"}, player:$player');
 	}
 	
 	function switchFullscreen(isUp:Bool, player:Int) {

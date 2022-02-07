@@ -53,7 +53,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		else return keyState.isDown;
 	}
 			
-	public inline function callDownActions(key:Int) {
+	public inline function callDownActions(key:Int, player:Int = -1) {
 		var keyState = this.get(key);
 		if (keyState != null && !keyState.isDown) {
 			keyState.isDown = true;
@@ -61,10 +61,10 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			#if input2actions_noKeyCombos
 			if (keyState.singleKeyAction != null) {
 				var actionState:ActionState = keyState.singleKeyAction;
-				if (actionState.each) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+				if (actionState.each) actionState.callAction(true, player);
 				else {
 					actionState.pressed++;
-					if (actionState.pressed == 1) actionState.action(InputType.KEYBOARD, ActionType.DOWN);
+					if (actionState.pressed == 1) actionState.callAction(true, player);
 				}
 			}
 			#else
@@ -84,10 +84,10 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 							called = true;
 							keyCombo.downBy = true;
 						
-							if (actionState.each) actionState.action(false, 0);
+							if (actionState.each) actionState.callAction(true, player);
 							else {
 								actionState.pressed++;
-								if (actionState.pressed == 1) actionState.action(false, 0);
+								if (actionState.pressed == 1) actionState.callAction(true, player);
 							}
 							if (actionState.single) break;
 						}
@@ -98,7 +98,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 	}
 		
-	public function callUpActions(key:Int) {
+	public function callUpActions(key:Int, player:Int = -1) {
 		var keyState = this.get(key);
 		if (keyState != null && keyState.isDown) {
 			keyState.isDown = false;
@@ -107,11 +107,11 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			if (keyState.singleKeyAction != null) {
 				var actionState:ActionState = keyState.singleKeyAction;
 				if (actionState.each) {
-					if (actionState.up) actionState.action(InputType.KEYBOARD, ActionType.UP);
+					if (actionState.up) actionState.callAction(false, player);
 				}
 				else {
 					actionState.pressed--;
-					if (actionState.up && actionState.pressed == 0) actionState.action(true, 0); 								
+					if (actionState.up && actionState.pressed == 0) actionState.callAction(false, player);							
 				}						
 			}
 			#else
@@ -127,11 +127,11 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 						actionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
 						
 						if (actionState.each) {
-							if (actionState.up) actionState.action(true, 0);
+							if (actionState.up) actionState.callAction(false, player);
 						}
 						else {
 							actionState.pressed--;
-							if (actionState.up && actionState.pressed == 0) actionState.action(true, 0); 								
+							if (actionState.up && actionState.pressed == 0) actionState.callAction(false, player);							
 						}						
 					}
 				}
@@ -228,18 +228,26 @@ class ActionState {
 	public var each:Bool;
 	public var single:Bool;
 	
-	public var pressed:Int = 0;	
+	public var pressed:Int = 0;
 	public var action:ActionFunction = null;
+	
+	public var keyboardPlayer:Int; // two player can share one keyboard
 	
 	#if input2actions_debug
 	public var name:String; //TODO: only for debug!
 	#end
 	
-	public function new(up:Bool, each:Bool, single:Bool, action:ActionFunction #if input2actions_debug , name:String #end) {
+	public inline function callAction(isDown:Bool, player:Int) {
+		if (player == -1) action(isDown, keyboardPlayer);
+		else action(isDown, player);
+	}
+	
+	public inline function new(up:Bool, each:Bool, single:Bool, action:ActionFunction, keyboardPlayer:Int #if input2actions_debug , name:String #end) {
 		this.up = up;
 		this.each = each;
 		this.single = single;
 		this.action = action;
+		this.keyboardPlayer = keyboardPlayer;
 		#if input2actions_debug 
 		this.name = name;
 		#end
