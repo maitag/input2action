@@ -138,17 +138,19 @@ class Main extends Application {
 		
 		var input2Actions = new Input2Actions(actionConfig, actionMap);
 		// TODO:
-		// var maxPlayer = 8;
-		//var input2Actions = new Input2Actions(actionConfigDefault, actionMap , maxPlayer, noDeviceconnectByDefault);
+		//var maxPlayer = 8;
+		//var input2Actions = new Input2Actions( maxPlayer, actionMapKey, actionMapAxis , actionConfigDefault, dontConnectDevicesByDefault);
 		
 		// set keyboard bindings for player 0
-		//input2Actions.set(0, actionConfig0);
+		input2Actions.setKeyboard(0, actionConfig);
 		
 		// event handler for new plugged gamepads
 		//input2Actions.onGamePadConnect() = function(gamepad:GamePad) {
 		//    //if (game.addPlayer()) ... // check for available players
-		//    // set keyboard and gamepad for player 1
+		//    // set gamepad for player 1
 		//    input2Actions.setGamepad(1, gamepad, actionConfig1);
+		//    // set another config for the same gamepad but another player 2
+		//    input2Actions.setGamepad(2, gamepad, actionConfig2);
 		//}
 
 		//input2Actions.onGamePadDisconnect() = function(player:Int) {
@@ -158,11 +160,14 @@ class Main extends Application {
 		
 		
 		// update only the keyboard bindings for player 1
-		//input2Actions.set(1, actionConfig1);
+		//input2Actions.setKeyboard(1, actionConfig1);
 		
-		
+		// TODO
 		//input2Actions.setJoystick(2, joystick, actionConfig2);
 
+		// set keyboard, gamepad and joystick bindings for player 0
+		// input2Actions.set(0, actionConfig0, gamepad, joystick);
+		
 		// swap input of player 0 and player 1
 		// input2Actions.swap(0, 1)
 		
