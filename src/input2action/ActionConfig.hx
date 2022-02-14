@@ -1,6 +1,6 @@
-package input2actions;
+package input2action;
 
-import input2actions.util.NestedArray;
+import input2action.util.NestedArray;
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
 

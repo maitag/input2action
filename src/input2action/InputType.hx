@@ -1,4 +1,4 @@
-package input2actions;
+package input2action;
 
 @:enum abstract InputType(Int) from Int to Int 
 {

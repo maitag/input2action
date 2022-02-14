@@ -1,4 +1,4 @@
-package input2actions;
+package input2action;
 
 
 abstract Json2ObjectConfig(Map<String, Json2ObjectItem>) from Map<String, Json2ObjectItem> to Map<String, Json2ObjectItem>

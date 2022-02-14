@@ -1,4 +1,4 @@
-package input2actions.util;
+package input2action.util;
 
 #if macro
 import haxe.macro.Context;

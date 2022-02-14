@@ -1,4 +1,4 @@
-package input2actions.util;
+package input2action.util;
 
 /**
  * by Sylvio Sell - Rostock 2019

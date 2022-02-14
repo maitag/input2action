@@ -1,11 +1,11 @@
-package input2actions;
+package input2action;
 
 import haxe.ds.IntMap;
 import haxe.ds.StringMap;
 import haxe.ds.Vector;
-import input2actions.ActionConfig;
-import input2actions.ActionMap;
-import input2actions.InputState;
+import input2action.ActionConfig;
+import input2action.ActionMap;
+import input2action.InputState;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
@@ -17,15 +17,15 @@ import json2object.JsonParser;
 import json2object.JsonWriter;
 
 
-import input2actions.util.EnumMacros;
-import input2actions.InputState.ActionState;
+import input2action.util.EnumMacros;
+import input2action.InputState.ActionState;
 
 /**
- * by Sylvio Sell - Rostock 2019
+ * by Sylvio Sell - Rostock 2022
 */
 
 
-class Input2Actions 
+class Input2Action 
 {
 	public var actionMap(default, null):ActionMap;
 	public var actionConfigDefault(default, null):ActionConfig;
@@ -70,7 +70,7 @@ class Input2Actions
 		var actionState = actionStatePlayer.get(actionConfigItem.action);
 		if (actionState == null)
 		{
-			actionState = new ActionState(actionMapItem.up, actionMapItem.each, actionConfigItem.single, actionMapItem.action, player #if input2actions_debug ,actionConfigItem.action #end);
+			actionState = new ActionState(actionMapItem.up, actionMapItem.each, actionConfigItem.single, actionMapItem.action, player #if input2action_debug ,actionConfigItem.action #end);
 			actionStatePlayer.set(actionConfigItem.action, actionState);
 		}
 		return actionState;			
@@ -119,8 +119,8 @@ class Input2Actions
 						{
 							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
 							case 2:	
-								#if input2actions_singlekey
-								throw('ERROR, multiple keys is disabled by compiler define: "input2actions_singlekey"');
+								#if input2action_singlekey
+								throw('ERROR, multiple keys is disabled by compiler define: "input2action_singlekey"');
 								#else
 								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
 								#end
@@ -166,31 +166,30 @@ class Input2Actions
 	public static var gamepadButtonName(default, never) = EnumMacros.nameByValue(GamepadButton);
 	public static var gamepadButtonValue(default, never) = EnumMacros.valueByName(GamepadButton);
 			
-	// TODO:
-	//var gamepadStates = new Map<Gamepad,InputState>
-	//var gamepadPlayer = new IntMap<Gamepad>
+	// TODO: (weakmap?)
+	var gamepadPlayer = new IntMap<Gamepad>();
+	var gamepadStates = new Map<Gamepad,InputState>();
 
-	var gamepadStates:Vector<InputState> = new Vector<InputState>(8); // TODO maxPlayer
-	public var gamepadPlayer:Vector<Int> = new Vector<Int>(8); // what player have what gamepad.id
+	//var gamepadStates:Vector<InputState> = new Vector<InputState>(8); // TODO maxPlayer
+	//public var gamepadPlayer:Vector<Int> = new Vector<Int>(8); // what player have what gamepad.id
 	
 	
-	public function setGamePad(player:Int, gamepad:Gamepad, actionConfig:ActionConfig) {
+	public function setGamepad(player:Int, gamepad:Gamepad, actionConfig:ActionConfig) {
 		
 		// TODO:
-		gamepadPlayer.set(player, gamepad.id);
+		gamepadPlayer.set(player, gamepad);
 
 		// TODO: if no actionConfig do not create new inputstate if there is some for this gamepad already
-		var gamepadState = gamepadStates.get(player);
+		var gamepadState = gamepadStates.get(gamepad);
 		if (gamepadState == null) {
 			gamepadState = new InputState(GamepadButton.DPAD_RIGHT + 1);
-			gamepadStates.set(player, gamepadState);
+			gamepadStates.set(gamepad, gamepadState);
 		}
 		
 		var actionMapItem:ActionMapItem;			
 		var key:Int;
 		var modkey:Int;
 
-		// TODO: this in separate function for keyboard, gamepad or joystick
 		for (actionConfigItem in actionConfig)
 		{
 			if (actionConfigItem.gamepad != null && actionConfigItem.gamepad.length != 0) 
@@ -204,8 +203,8 @@ class Input2Actions
 						{
 							case 1:	key = keys[0]; modkey = 0; 
 							case 2:	
-								#if input2actions_singlekey
-								throw('ERROR, multiple keys is disabled by compiler define: "input2actions_singlekey"');
+								#if input2action_singlekey
+								throw('ERROR, multiple keys is disabled by compiler define: "input2action_singlekey"');
 								#else
 								key = keys[1]; modkey = keys[0];
 								#end
@@ -217,7 +216,7 @@ class Input2Actions
 			}
 		}
 		
-
+		enableGamePad(player);
 	}
 	
 	public function removeGamePad(player:Int) {
@@ -228,44 +227,43 @@ class Input2Actions
 		
 	}
 	
-	public function disableGamePad(player:Int) {
-		
-	}
-	
 	public function enableGamePad(player:Int) {
-		
+		var gamepad = gamepadPlayer.get(player);
+		var gamepadState = gamepadStates.get(gamepad);
+		if (gamepad != null) {
+			gamepad.onButtonDown.add(gamepadButtonDown.bind(gamepadState));
+			gamepad.onButtonUp.add(gamepadButtonUp.bind(gamepadState));			
+			gamepad.onAxisMove.add(gamepadAxisMove.bind(gamepadState));
+		}
 	}
 	
+	public function disableGamePad(player:Int) {
+		var gamepad = gamepadPlayer.get(player);
+		var gamepadState = gamepadStates.get(gamepad);
+		if (gamepad != null) {
+			gamepad.onButtonDown.remove(gamepadButtonDown.bind(gamepadState));
+			gamepad.onButtonUp.remove(gamepadButtonUp.bind(gamepadState));
+			gamepad.onAxisMove.remove(gamepadAxisMove.bind(gamepadState));
+		}
+	}
+	
+	
+	public var onGamepadConnect:Gamepad->Void = null;
 	inline function gamepadConnect (gamepad:Gamepad):Void
 	{		
 		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);		
 		gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad));
 		
-		// TODO: let easy bind the player and gamepadState[player] of new connected devices
-		// TODO: check free SLOTS for player and lastUsedDevice(UUID) <-> player for old assignements
-		var player = gamepadPlayer.get(gamepad.id);
-		
-		
-		gamepad.onButtonDown.add(gamepadButtonDown.bind( gamepadStates.get(player) ));
-		gamepad.onButtonUp.add(gamepadButtonUp.bind( gamepadStates.get(player) ));
-		
-		gamepad.onAxisMove.add(gamepadAxisMove.bind(gamepad));
-		
-		// TODO: call onGamepadConnect custom handler!
+		if (onGamepadConnect != null) onGamepadConnect(gamepad);
 	}
 		
+	public var onGamepadDisconnect:Gamepad->Void = null;
 	inline function gamepadDisconnect (gamepad:Gamepad):Void 
 	{		
 		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", "+ gamepad.name);	
 		gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad));
-		
-		var player = gamepadPlayer.get(gamepad.id);
-		
-		gamepad.onButtonDown.remove(gamepadButtonDown.bind( gamepadStates.get(player) ));
-		gamepad.onButtonUp.remove(gamepadButtonUp.bind( gamepadStates.get(player) ));
-		
-		gamepad.onAxisMove.remove(gamepadAxisMove.bind(gamepad));
-		gamepad = null;
+
+		if (onGamepadDisconnect != null) onGamepadDisconnect(gamepad);
 	}
 	
 	inline function gamepadButtonDown(gamepadState:InputState, button:GamepadButton):Void
@@ -286,7 +284,7 @@ class Input2Actions
 		#end
 	}
 
-	inline function gamepadAxisMove(gamepad:Gamepad, axis:GamepadAxis, value:Float):Void
+	inline function gamepadAxisMove(gamepadState:InputState, axis:GamepadAxis, value:Float):Void
 	{	
 		if (value < -0.5) {
 			//trace (axis, value);					

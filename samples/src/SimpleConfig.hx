@@ -3,6 +3,7 @@ package;
 import lime.app.Application;
 import lime.graphics.RenderContext;
 import lime.system.Locale;
+import lime.ui.Gamepad;
 
 
 import lime.ui.KeyCode;
@@ -12,13 +13,13 @@ import lime.ui.GamepadButton;
 
 
 
-import input2actions.ActionConfig;
-import input2actions.ActionMap;
-import input2actions.Input2Actions;
+import input2action.ActionConfig;
+import input2action.ActionMap;
+import input2action.Input2Action;
 
 
 
-class Main extends Application {
+class SimpleConfig extends Application {
 	
 		
 	public override function onWindowCreate ():Void 
@@ -44,7 +45,7 @@ class Main extends Application {
 			{
 				action: "action1",  // key for ActionMap				
 				keyboard: [ 
-					#if !input2actions_noKeyCombos
+					#if !input2action_noKeyCombos
 					[KeyCode.A, KeyCode.S], // key-combo ("a" have to press first)
 					#end
 					KeyCode.LEFT_SHIFT, KeyCode.Y    // additional multiple single keys for this action
@@ -55,7 +56,7 @@ class Main extends Application {
 				action: "action2",
 				// TODO: reverseCombo:true, // adds also [KeyCode.S, KeyCode.D] combination
 				keyboard: [ 
-					#if !input2actions_noKeyCombos
+					#if !input2action_noKeyCombos
 					[KeyCode.D, KeyCode.S],  // key-combo ("d" have to press first)
 					#else
 					KeyCode.D,    // additional multiple single keys for this action
@@ -136,44 +137,44 @@ class Main extends Application {
 		//trace(actionConfig.toJson);
 */
 		
-		var input2Actions = new Input2Actions(actionConfig, actionMap);
+		var input2Action = new Input2Action(actionConfig, actionMap);
 		// TODO:
 		//var maxPlayer = 8;
-		//var input2Actions = new Input2Actions( maxPlayer, actionMapKey, actionMapAxis , actionConfigDefault, dontConnectDevicesByDefault);
+		//var input2Action = new Input2Action( maxPlayer, actionMapKey, actionMapAxis , actionConfigDefault, dontConnectDevicesByDefault);
 		
 		// set keyboard bindings for player 0
-		input2Actions.setKeyboard(0, actionConfig);
+		input2Action.setKeyboard(0, actionConfig);
 		
 		// event handler for new plugged gamepads
-		//input2Actions.onGamePadConnect() = function(gamepad:GamePad) {
-		//    //if (game.addPlayer()) ... // check for available players
-		//    // set gamepad for player 1
-		//    input2Actions.setGamepad(1, gamepad, actionConfig1);
-		//    // set another config for the same gamepad but another player 2
-		//    input2Actions.setGamepad(2, gamepad, actionConfig2);
-		//}
+		input2Action.onGamepadConnect = function(gamepad:Gamepad) {
+		    //if (game.addPlayer()) ... // check for available players
+		    // set gamepad for player 1
+		    input2Action.setGamepad(1, gamepad, actionConfig);
+		    // set another config for the same gamepad but another player 2
+		    //input2Action.setGamepad(2, gamepad, actionConfig2);
+		}
 
-		//input2Actions.onGamePadDisconnect() = function(player:Int) {
-		//    input2Actions.removeGamepad(1);
+		//input2Action.onGamePadDisconnect() = function(player:Int) {
+		//    input2Action.removeGamepad(1);
 		//    //game.playerDisconnected(1);
 		//}
 		
 		
 		// update only the keyboard bindings for player 1
-		//input2Actions.setKeyboard(1, actionConfig1);
+		//input2Action.setKeyboard(1, actionConfig1);
 		
 		// TODO
-		//input2Actions.setJoystick(2, joystick, actionConfig2);
+		//input2Action.setJoystick(2, joystick, actionConfig2);
 
 		// set keyboard, gamepad and joystick bindings for player 0
-		// input2Actions.set(0, actionConfig0, gamepad, joystick);
+		// input2Action.set(0, actionConfig0, gamepad, joystick);
 		
 		// swap input of player 0 and player 1
-		// input2Actions.swap(0, 1)
+		// input2Action.swap(0, 1)
 		
 		// disable and enable input of player 1
-		//input2Actions.disable(1);
-		//input2Actions.enable(1);
+		//input2Action.disable(1);
+		//input2Action.enable(1);
 		
 
 		
@@ -182,8 +183,8 @@ class Main extends Application {
 		// TODO: save the modified config into json
 		
 		
-		input2Actions.enable(window);
-		//input2Actions.disable(window);
+		input2Action.enable(window);
+		//input2Action.disable(window);
 
 	}
 	

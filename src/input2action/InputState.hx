@@ -1,15 +1,11 @@
-package input2actions;
+package input2action;
 
-import haxe.ds.ObjectMap;
-import haxe.ds.StringMap;
 import haxe.ds.Vector;
-import haxe.ds.WeakMap;
-import input2actions.ActionFunction;
-import input2actions.ActionMap;
-import input2actions.Input2Actions;
+import input2action.ActionFunction;
+import input2action.Input2Action;
 
 /**
- * by Sylvio Sell - Rostock 2019
+ * by Sylvio Sell - Rostock 2022
 */
 
 abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
@@ -21,7 +17,6 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 	}
 
 
-	// TODO: up and down into one function
 	public inline function addAction(actionState:ActionState, key:Int, modKey:Int = 0) {
 		var keyState = this.get(key);
 		if (keyState == null) {
@@ -29,7 +24,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			this.set(key, keyState);
 		}
 		
-		#if input2actions_noKeyCombos
+		#if input2action_noKeyCombos
 			if (keyState.singleKeyAction != null) throw('Error, the single action to key $key is already defined');
 			keyState.singleKeyAction = actionState;
 		#else
@@ -58,7 +53,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		if (keyState != null && !keyState.isDown) {
 			keyState.isDown = true;
 			
-			#if input2actions_noKeyCombos
+			#if input2action_noKeyCombos
 			if (keyState.singleKeyAction != null) {
 				var actionState:ActionState = keyState.singleKeyAction;
 				if (actionState.each) actionState.callDownAction();
@@ -103,7 +98,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		if (keyState != null && keyState.isDown) {
 			keyState.isDown = false;
 			
-			#if input2actions_noKeyCombos
+			#if input2action_noKeyCombos
 			if (keyState.singleKeyAction != null) {
 				var actionState:ActionState = keyState.singleKeyAction;
 				if (actionState.each) {
@@ -124,7 +119,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 					{
 						keyCombo.downBy = false;
 						
-						actionState = keyCombo.actionState; //trace("UP", actionState.name, actionState.pressed);
+						actionState = keyCombo.actionState;
 						
 						if (actionState.each) {
 							if (actionState.up) actionState.callUpAction();
@@ -146,7 +141,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		var out = "";
 		
 		var actionName = function(actionState:ActionState):String {
-			#if input2actions_debug
+			#if input2action_debug
 			return actionState.name;
 			#else
 			return Std.string(actionState.action);
@@ -154,17 +149,17 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 
 		var keyCodeName = function(key:Int):String {
-			return Input2Actions.keyCodeName.get( Input2Actions.toKeyCode(key) );
+			return Input2Action.keyCodeName.get( Input2Action.toKeyCode(key) );
 		}
 		
 		for (i in 0...this.length) {
 			var keyState = this.get(i);
 			if (keyState != null) {
 				out += '\n\n';
-				out += Input2Actions.keyCodeName.get(Input2Actions.toKeyCode(i));
+				out += Input2Action.keyCodeName.get(Input2Action.toKeyCode(i));
 				out += (keyState.isDown) ? " (isDown)" : " (isUp)";
 				
-				#if input2actions_noKeyCombos
+				#if input2action_noKeyCombos
 				if (keyState.singleKeyAction != null) out += ' -> ' + actionName(keyState.singleKeyAction);
 				#else
 				if (keyState.keyCombo != null)
@@ -189,7 +184,7 @@ private class KeyState
 {
 	public var isDown:Bool = false;
 	
-	#if input2actions_noKeyCombos
+	#if input2action_noKeyCombos
 	
 	public var deviceID:Int;
 	public var singleKeyAction:ActionState = null;
@@ -204,7 +199,7 @@ private class KeyState
 }
 
 
-#if !input2actions_noKeyCombos
+#if !input2action_noKeyCombos
 
 private class KeyCombo 
 {
@@ -231,22 +226,22 @@ class ActionState {
 	public var pressed:Int = 0;
 	public var action:ActionFunction = null;
 	
-	public var player:Int; // two player can share one keyboard
+	public var player:Int;
 	
-	#if input2actions_debug
-	public var name:String; //TODO: only for debug!
+	#if input2action_debug
+	public var name:String;
 	#end
 	
 	public inline function callDownAction() action(true, player);
 	public inline function callUpAction() action(false, player);
 	
-	public inline function new(up:Bool, each:Bool, single:Bool, action:ActionFunction, player:Int #if input2actions_debug , name:String #end) {
+	public inline function new(up:Bool, each:Bool, single:Bool, action:ActionFunction, player:Int #if input2action_debug , name:String #end) {
 		this.up = up;
 		this.each = each;
 		this.single = single;
 		this.action = action;
 		this.player = player;
-		#if input2actions_debug 
+		#if input2action_debug 
 		this.name = name;
 		#end
 	}

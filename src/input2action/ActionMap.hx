@@ -1,6 +1,6 @@
-package input2actions;
-import input2actions.ActionFunction;
-import input2actions.InputState.ActionState;
+package input2action;
+import input2action.ActionFunction;
+import input2action.InputState.ActionState;
 
 typedef ActionMap = haxe.ds.StringMap<ActionMapItem>;
 
