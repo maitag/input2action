@@ -2,21 +2,13 @@ package;
 
 import lime.app.Application;
 import lime.graphics.RenderContext;
-import lime.system.Locale;
 import lime.ui.Gamepad;
-
-
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
-//import lime.ui.Gamepad;
 //import lime.ui.GamepadAxis;
 
-
-
 import input2action.ActionConfig;
-import input2action.ActionMap;
 import input2action.Input2Action;
-
 
 
 class SimpleConfig extends Application {
@@ -24,163 +16,63 @@ class SimpleConfig extends Application {
 		
 	public override function onWindowCreate ():Void 
 	{
-		//trace(Locale.currentLocale.language);
-/*		
-		// json2obj:
-		var actionConfigJson:ActionConfigJson =
-		'
-		[
-			{	"action"    : "action1",
-				"single"    : "false",
-				"keyboard"  : "LEFT, A, LEFT_SHIFT A, RIGHT_SHIFT A",
-				"gamepad"   : "LEFT_STICK"
-			}
-		]
-		';
-*/		
-		//var actionConfig:ActionConfig = actionConfigJson;
+		//trace(lime.system.Locale.currentLocale.language);
 
-		// defined in haxe:
+		// bindings for keyboard and gamepad:
 		var actionConfig:ActionConfig = [
-			{
-				action: "action1",  // key for ActionMap				
-				keyboard: [ 
-					#if !input2action_noKeyCombos
-					[KeyCode.A, KeyCode.S], // key-combo ("a" have to press first)
-					#end
-					KeyCode.LEFT_SHIFT, KeyCode.Y    // additional multiple single keys for this action
-			    ],				
+			{	action: "menu",
+				keyboard: [ KeyCode.ESCAPE ],
+				gamepad: [ GamepadButton.BACK ]
+			},
+			{	action: "inventory",
+				keyboard: [ KeyCode.I ],
+				gamepad: [ GamepadButton.X ]
+			},
+			{	action: "enter",
+				keyboard: [ KeyCode.RETURN, KeyCode.RETURN2, KeyCode.NUMPAD_ENTER],
 				gamepad: [ GamepadButton.A ]
 			},
-			{
-				action: "action2",
-				// TODO: reverseCombo:true, // adds also [KeyCode.S, KeyCode.D] combination
-				keyboard: [ 
-					#if !input2action_noKeyCombos
-					[KeyCode.D, KeyCode.S],  // key-combo ("d" have to press first)
-					#else
-					KeyCode.D,    // additional multiple single keys for this action
-					#end
-				],				
-				gamepad: [ GamepadButton.B ]
+			{	action: "fire",
+				keyboard: [ KeyCode.SPACE, KeyCode.LEFT_CTRL, KeyCode.RIGHT_CTRL],
+				gamepad: [ GamepadButton.LEFT_SHOULDER, GamepadButton.RIGHT_SHOULDER ]
 			},
-			{
-				action: "action3",
-				
-				// only trigger if pressed alone and not if there is also another key-combo action for this keys
-				single:true, // (false by default)
-				
-				keyboard: [ KeyCode.S, KeyCode.C ],
-				gamepad: [ GamepadButton.X, GamepadButton.Y ]
-				
+			{	action: "moveUp",
+				keyboard: [ KeyCode.W, KeyCode.UP],
+				gamepad: [ GamepadButton.DPAD_UP ]
 			},
-			{
-				action: "switchFullscreen",
-				keyboard: [ KeyCode.F ],
+			{	action: "moveDown",
+				keyboard: [ KeyCode.S, KeyCode.DOWN],
+				gamepad: [ GamepadButton.DPAD_DOWN ]
+			},
+			{	action: "moveLeft",
+				keyboard: [ KeyCode.A, KeyCode.LEFT],
+				gamepad: [ GamepadButton.DPAD_LEFT ]
+			},
+			{	action: "moveRight",
+				keyboard: [ KeyCode.D, KeyCode.RIGHT],
+				gamepad: [ GamepadButton.DPAD_RIGHT ]
 			},
 		];
 		
-		// Player 0 bindings
-		var actionConfigPlayer0:ActionConfig = [
-			{	action: "action1",
-				keyboard: [ KeyCode.LEFT_SHIFT ],
-			},
-		];
+		// contains the actions and mappings to the action-identifiers
+		var application = new Action();
 		
-		// Player 1 bindings
-		var actionConfigPlayer1:ActionConfig = [
-			{	action: "action1",
-				keyboard: [ KeyCode.RIGHT_SHIFT ],
-			},
-			{	action: "action2",
-				keyboard: [ KeyCode.L ],				
-			},
-			{	action: "action3",
-				single:false,
-				keyboard: [ KeyCode.M ],
-				gamepad: [ GamepadButton.DPAD_LEFT ],			
-			},
-		];
+		var input2Action = new Input2Action(actionConfig, application.actionMap);
 		
-		
-		// ------ mapping to the action-function-references
-		
-		var actionMap:ActionMap = [
-			"action1" => {
-				action:action1,
-				//actionAxis:actionAxis1,
-				up: true,  // enables key/button "up"-event
-				
-				// if multiple keys pressed/released together:
-				// each: false, // (default) "down"-event fires only for the first key/button, "up"-event only after the last key/button is released
-				each: true // fire events for each key/button			
-			},
-			"action2" => {action:action2},
-			"action3" => {action:action3},
-			"switchFullscreen" => {action:switchFullscreen},
-		];
-		
-		
-/*
-		// TODO: set defaults and let force it also outside of config/json !
-
-		actionConfig.defaults({
-			single:true,
-			forceSingle:true,
-		});
-		
-		actionConfig.force({
-			single:true,
-			forceSingle:true,
-		});
-		
-		//trace(actionConfig.toJson);
-*/
-		
-		var input2Action = new Input2Action(actionConfig, actionMap);
-		// TODO:
-		//var maxPlayer = 8;
-		//var input2Action = new Input2Action( maxPlayer, actionMapKey, actionMapAxis , actionConfigDefault, dontConnectDevicesByDefault);
-		
-		// set keyboard bindings for player 0
-		input2Action.setKeyboard(0, actionConfig);
+		// set keyboard bindings
+		input2Action.setKeyboard();
 		
 		// event handler for new plugged gamepads
 		input2Action.onGamepadConnect = function(gamepad:Gamepad) {
-		    //if (game.addPlayer()) ... // check for available players
-		    // set gamepad for player 1
-		    input2Action.setGamepad(1, gamepad, actionConfig);
-		    // set another config for the same gamepad but another player 2
-		    //input2Action.setGamepad(2, gamepad, actionConfig2);
+		    input2Action.setGamepad(gamepad);
 		}
 
-		//input2Action.onGamePadDisconnect() = function(player:Int) {
-		//    input2Action.removeGamepad(1);
-		//    //game.playerDisconnected(1);
-		//}
+		input2Action.onGamepadDisconnect = function(gamepad:Gamepad, player:Int) {
+		    input2Action.removeGamepad(gamepad);
+		}
 		
 		
-		// update only the keyboard bindings for player 1
-		//input2Action.setKeyboard(1, actionConfig1);
-		
-		// TODO
-		//input2Action.setJoystick(2, joystick, actionConfig2);
-
-		// set keyboard, gamepad and joystick bindings for player 0
-		// input2Action.set(0, actionConfig0, gamepad, joystick);
-		
-		// swap input of player 0 and player 1
-		// input2Action.swap(0, 1)
-		
-		// disable and enable input of player 1
-		//input2Action.disable(1);
-		//input2Action.enable(1);
-		
-
-		
-		
-		
-		// TODO: save the modified config into json
+		//trace(actionConfig.toJson);
 		
 		
 		input2Action.enable(window);
@@ -188,29 +80,6 @@ class SimpleConfig extends Application {
 
 	}
 	
-	
-	// ------------------------------------------------------------	
-	// -------------------- Actions -------------------------------	
-	// ------------------------------------------------------------
-	
-	function action1(isDown:Bool, player:Int) 
-	{
-		trace('action 1 - ${(isDown) ? "DOWN" : "UP"}, player:$player');
-	}
-	
-	function action2(isDown:Bool, player:Int) 
-	{
-		trace('action 2 - ${(isDown) ? "DOWN" : "UP"}, player:$player');
-	}
-	
-	function action3(isDown:Bool, player:Int) 
-	{
-		trace('action 3 - ${(isDown) ? "DOWN" : "UP"}, player:$player');
-	}
-	
-	function switchFullscreen(isUp:Bool, player:Int) {
-		window.fullscreen = !window.fullscreen;
-	}
 	
 	// ------------------------------------------------------------	
 	// ------------------------------------------------------------	

@@ -98,12 +98,14 @@ class Input2Action
 		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
 	}
 	
-	public function setKeyboard(player:Int, actionConfig:ActionConfig) {
+	public function setKeyboard(player:Int = 0, actionConfig:ActionConfig = null) {
+		
+		if (actionConfig == null) actionConfig = actionConfigDefault;
 		
 		var actionMapItem:ActionMapItem;			
 		var key:Int;
 		var modkey:Int;
-
+		
 		if (keyboardState==null) keyboardState = new InputState(MAX_USABLE_KEYCODES);
 
 		for (actionConfigItem in actionConfig)
@@ -111,7 +113,7 @@ class Input2Action
 			if (actionConfigItem.keyboard != null && actionConfigItem.keyboard.length != 0) 
 			{
 				actionMapItem = actionMap.get(actionConfigItem.action);				
-				if (actionMapItem.action != null)
+				if (actionMapItem != null && actionMapItem.action != null)
 				{
 					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);										
 					for (keys in actionConfigItem.keyboard) {
@@ -161,7 +163,7 @@ class Input2Action
 	
 	
 	
-	// ---------------- GamePad -----------------------------
+	// ---------------- Gamepad -----------------------------
 	
 	public static var gamepadButtonName(default, never) = EnumMacros.nameByValue(GamepadButton);
 	public static var gamepadButtonValue(default, never) = EnumMacros.valueByName(GamepadButton);
@@ -169,12 +171,10 @@ class Input2Action
 	// TODO: (weakmap?)
 	var gamepadPlayer = new IntMap<Gamepad>();
 	var gamepadStates = new Map<Gamepad,InputState>();
-
-	//var gamepadStates:Vector<InputState> = new Vector<InputState>(8); // TODO maxPlayer
-	//public var gamepadPlayer:Vector<Int> = new Vector<Int>(8); // what player have what gamepad.id
 	
-	
-	public function setGamepad(player:Int, gamepad:Gamepad, actionConfig:ActionConfig) {
+	public function setGamepad(player:Int=0, gamepad:Gamepad, actionConfig:ActionConfig = null) {
+		
+		if (actionConfig == null) actionConfig = actionConfigDefault;
 		
 		// TODO:
 		gamepadPlayer.set(player, gamepad);
@@ -216,18 +216,19 @@ class Input2Action
 			}
 		}
 		
-		enableGamePad(player);
+		enableGamepad(player);
 	}
 	
-	public function removeGamePad(player:Int) {
+	// TODO:
+	public function removeGamepad(gamepad:Gamepad) {
 		
 	}
 	
-	public function swapGamePad(player:Int) {
+	public function swapGamepad(player:Int) {
 		
 	}
 	
-	public function enableGamePad(player:Int) {
+	public function enableGamepad(player:Int) {
 		var gamepad = gamepadPlayer.get(player);
 		var gamepadState = gamepadStates.get(gamepad);
 		if (gamepad != null) {
@@ -237,7 +238,7 @@ class Input2Action
 		}
 	}
 	
-	public function disableGamePad(player:Int) {
+	public function disableGamepad(player:Int) {
 		var gamepad = gamepadPlayer.get(player);
 		var gamepadState = gamepadStates.get(gamepad);
 		if (gamepad != null) {
@@ -257,13 +258,20 @@ class Input2Action
 		if (onGamepadConnect != null) onGamepadConnect(gamepad);
 	}
 		
-	public var onGamepadDisconnect:Gamepad->Void = null;
+	public var onGamepadDisconnect:Gamepad->Int->Void = null;
 	inline function gamepadDisconnect (gamepad:Gamepad):Void 
 	{		
 		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", "+ gamepad.name);	
 		gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad));
 
-		if (onGamepadDisconnect != null) onGamepadDisconnect(gamepad);
+		if (onGamepadDisconnect != null) {
+			var player = -1;
+			var gamepadState = gamepadStates.get(gamepad);
+			if (gamepadState != null) {
+				// TODO
+				onGamepadDisconnect(gamepad, player);
+			}
+		}
 	}
 	
 	inline function gamepadButtonDown(gamepadState:InputState, button:GamepadButton):Void
@@ -311,6 +319,15 @@ class Input2Action
 			default:		
 		}
 */		
+		
+
+
+	}
+	
+	
+	// TODO: remove all keyboard and gamepad events for this player only
+	public function removePlayer(player:Int=0) {
+		
 	}
 	
 	

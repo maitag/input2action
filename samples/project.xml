@@ -4,6 +4,10 @@
 	<meta title="Input2Action" package="lime.samples.input2actions" version="0.5.0" company="semmi" />
 	
 	<app main="SimpleConfig" path="bin" file="Input2Action" />
+	<!-- KeyCombos -->
+	<!-- MultiConfig -->
+	<!-- JsonConfig -->
+	
 	
 	<source path="src" />
 	
