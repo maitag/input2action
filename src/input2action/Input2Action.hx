@@ -98,9 +98,14 @@ class Input2Action
 		return (k < UNUSED_KEYCODE_START) ? k : k + UNUSED_KEYCODE_END - UNUSED_KEYCODE_START;
 	}
 	
+	// TODO: keyboardPlayer:Int
+	
 	public function setKeyboard(player:Int = 0, actionConfig:ActionConfig = null) {
 		
 		if (actionConfig == null) actionConfig = actionConfigDefault;
+		
+		// TODO: check maxPlayer
+		// TODO: set keyboardPlayer bit
 		
 		var actionMapItem:ActionMapItem;			
 		var key:Int;
@@ -139,6 +144,17 @@ class Input2Action
 
 	}
 	
+	// TODO:
+	public function removeKeyboard(player:Int) {
+		
+	}
+	public function enableKeyboard(player:Int) {
+		
+	}
+	public function disableKeyboard(player:Int) {
+		
+	}
+	
 	inline function keyDown(key:KeyCode, _):Void
 	{
 		//trace("keyDown:",StringTools.hex(fromKeyCode(Std.int(key))));
@@ -167,9 +183,8 @@ class Input2Action
 	
 	public static var gamepadButtonName(default, never) = EnumMacros.nameByValue(GamepadButton);
 	public static var gamepadButtonValue(default, never) = EnumMacros.valueByName(GamepadButton);
-			
-	// TODO: (weakmap?)
-	var gamepadPlayer = new IntMap<Gamepad>();
+				
+	var gamepadPlayer = new IntMap<Gamepad>(); // TODO: Vector<Gamepad> and init with maxPlayer value
 	var gamepadStates = new Map<Gamepad,InputState>();
 	
 	public function setGamepad(player:Int=0, gamepad:Gamepad, actionConfig:ActionConfig = null) {
@@ -252,26 +267,25 @@ class Input2Action
 	public var onGamepadConnect:Gamepad->Void = null;
 	inline function gamepadConnect (gamepad:Gamepad):Void
 	{		
-		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);		
+		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);
+		
+		// TODO: inside of setGamepad -> gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad, player));
 		gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad));
 		
 		if (onGamepadConnect != null) onGamepadConnect(gamepad);
 	}
-		
+	
 	public var onGamepadDisconnect:Gamepad->Int->Void = null;
+	// TODO: inline function gamepadDisconnect (gamepad:Gamepad, player:Int):Void 
 	inline function gamepadDisconnect (gamepad:Gamepad):Void 
 	{		
-		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", "+ gamepad.name);	
+		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);	
+		
+		// TODO: remove from gamepadPlayer and gamepadStates
+		// gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad, player));
 		gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad));
 
-		if (onGamepadDisconnect != null) {
-			var player = -1;
-			var gamepadState = gamepadStates.get(gamepad);
-			if (gamepadState != null) {
-				// TODO
-				onGamepadDisconnect(gamepad, player);
-			}
-		}
+		if (onGamepadDisconnect != null) onGamepadDisconnect(gamepad, -1);
 	}
 	
 	inline function gamepadButtonDown(gamepadState:InputState, button:GamepadButton):Void

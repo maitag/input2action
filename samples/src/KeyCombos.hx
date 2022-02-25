@@ -11,56 +11,74 @@ import input2action.ActionConfig;
 import input2action.Input2Action;
 
 
-class SimpleConfig extends Application {
-	
-		
+class KeyCombos extends Application {
+			
 	public override function onWindowCreate ():Void 
 	{
-		//trace(lime.system.Locale.currentLocale.language);
-
 		// bindings for keyboard and gamepad:
-		var actionConfig:ActionConfig = [
-			{	action: "menu",
-				keyboard: [ KeyCode.ESCAPE ],
-				gamepad: [ GamepadButton.BACK ]
-			},
-			{	action: "inventory",
-				keyboard: [ KeyCode.I ],
-				gamepad: [ GamepadButton.A ]
-			},
+		var actionConfig:ActionConfig = 
+		[
 			{	action: "enter",
-				keyboard: [ KeyCode.RETURN, KeyCode.RETURN2 ],
-				gamepad: [ GamepadButton.RIGHT_STICK ]
+				
+				// only trigger if pressed alone and not if there is also another key-combo action for this keys
+				single:true,
+				
+				keyboard: [ KeyCode.RETURN ],
+				gamepad: [ GamepadButton.RIGHT_STICK ]				
 			},
-			{	action: "modEnter",
-				keyboard: [ KeyCode.NUMPAD_ENTER ],
-				gamepad: [ GamepadButton.LEFT_STICK ]
+			{	action: "modEnter",		
+				keyboard: [
+					[KeyCode.LEFT_SHIFT, KeyCode.RETURN],   // key-combo ("left shift" have to press first)
+					[KeyCode.RIGHT_SHIFT, KeyCode.RETURN],  // key-combo ("right shift" have to press first)
+					KeyCode.NUMPAD_ENTER, KeyCode.RETURN2 // additional multiple single keys for this action
+			    ],				
+				gamepad: [ 
+					[GamepadButton.A, GamepadButton.RIGHT_STICK],  // key-combo ("A" have to press first)
+				    GamepadButton.LEFT_STICK 
+				]
 			},
+			
+			// -----------------------
 			{	action: "fireLeft",
+				single:true,
 				keyboard: [ KeyCode.LEFT_CTRL, KeyCode.LEFT_ALT ],
-				gamepad: [ GamepadButton.LEFT_SHOULDER ]
+				gamepad:  [ GamepadButton.LEFT_SHOULDER ]
 			},
+			{	action: "modXfireLeft", // TODO: reverseCombo:true, to add automatically reverse combination
+				// key-combos
+				keyboard: [ [KeyCode.X, KeyCode.LEFT_CTRL], [KeyCode.X, KeyCode.LEFT_ALT] ],
+				gamepad:  [ [GamepadButton.X, GamepadButton.LEFT_SHOULDER ] ]
+			},
+			{	action: "modYfireLeft",
+				// key-combos
+				keyboard: [ [KeyCode.Y, KeyCode.LEFT_CTRL], [KeyCode.Y, KeyCode.LEFT_ALT] ],
+				gamepad:  [ [GamepadButton.Y, GamepadButton.LEFT_SHOULDER ] ]
+			},
+			
+			// -----------------------
 			{	action: "fireRight",
-				keyboard: [ KeyCode.RIGHT_CTRL, KeyCode.SPACE, KeyCode.RIGHT_ALT ],
-				gamepad: [ GamepadButton.RIGHT_SHOULDER ]
+				//single:true,
+				keyboard: [ KeyCode.RIGHT_CTRL, KeyCode.SPACE ],
+				gamepad:  [ GamepadButton.RIGHT_SHOULDER ]
 			},
-			{	action: "moveUp",
-				keyboard: [ KeyCode.W, KeyCode.UP],
-				gamepad: [ GamepadButton.DPAD_UP ]
+			{	action: "modXfireRight",
+				// key-combos
+				// single:true,
+				keyboard: [ [KeyCode.X, KeyCode.RIGHT_CTRL], [KeyCode.X, KeyCode.SPACE] ],
+				gamepad:  [ [GamepadButton.X, GamepadButton.RIGHT_SHOULDER ] ]
 			},
-			{	action: "moveDown",
-				keyboard: [ KeyCode.S, KeyCode.DOWN],
-				gamepad: [ GamepadButton.DPAD_DOWN ]
-			},
-			{	action: "moveLeft",
-				keyboard: [ KeyCode.A, KeyCode.LEFT],
-				gamepad: [ GamepadButton.DPAD_LEFT ]
-			},
-			{	action: "moveRight",
-				keyboard: [ KeyCode.D, KeyCode.RIGHT],
-				gamepad: [ GamepadButton.DPAD_RIGHT ]
+			{	action: "modYfireRight",
+				// key-combos
+				single:true,
+				keyboard: [ [KeyCode.Y, KeyCode.RIGHT_CTRL], [KeyCode.Y, KeyCode.SPACE] ],
+				gamepad:  [ [GamepadButton.Y, GamepadButton.RIGHT_SHOULDER ] ]
 			},
 		];
+				
+		
+		
+		//trace(actionConfig.toJson);
+
 		
 		// contains the actions and mappings to the action-identifiers
 		var application = new Action();

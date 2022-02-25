@@ -23,8 +23,15 @@ class Action
 				"menu"      => { action:menu },
 				"inventory" => { action:inventory },
 				"enter"     => { action:enter    , up:true },
+				"modEnter"  => { action:modEnter , up:true },
 				
-				"fire"      => { action:fire     , up:true, each:true },
+				"fireLeft"  => { action:fireLeft , up:true },
+				"fireRight" => { action:fireRight, up:true, each:true },
+				
+				"modXfireLeft"  =>  { action:modXfireLeft , up:true },
+				"modYfireLeft" =>   { action:modYfireLeft , up:true },
+				"modXfireRight"  => { action:modXfireRight, up:true },
+				"modYfireRight" =>  { action:modYfireRight, up:true },
 				
 				"moveUp"    => { action:moveUp   , up:true },
 				"moveDown"  => { action:moveDown , up:true },
@@ -60,8 +67,32 @@ class Action
 		trace('enter - ${(isDown) ? "DOWN" : "UP"}, player:$player');
 	}
 	
-	function fire(isDown:Bool, player:Int) {
-		trace('fire - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	function modEnter(isDown:Bool, player:Int) {
+		trace('modEnter - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	}
+	
+	function fireLeft(isDown:Bool, player:Int) {
+		trace('fireLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	}
+	
+	function fireRight(isDown:Bool, player:Int) {
+		trace('fireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	}
+	
+	function modXfireLeft(isDown:Bool, player:Int) {
+		trace('modXfireLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	}
+	
+	function modYfireLeft(isDown:Bool, player:Int) {
+		trace('modYfireLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	}
+	
+	function modXfireRight(isDown:Bool, player:Int) {
+		trace('modXfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+	}
+	
+	function modYfireRight(isDown:Bool, player:Int) {
+		trace('modYfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player');
 	}
 	
 	function moveUp(isDown:Bool, player:Int) {

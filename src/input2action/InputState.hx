@@ -31,13 +31,23 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			if (keyState.keyCombo == null) keyState.keyCombo = new Array<KeyCombo>();
 			else for (ma in keyState.keyCombo) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
 			
-			if (modKey > 0 && this.get(modKey) == null) this.set(modKey, new KeyState());// TODO
+			// create empty keystate for the modkey
+			if (modKey > 0 && this.get(modKey) == null) this.set(modKey, new KeyState());
 			
-			keyState.keyCombo.push(new KeyCombo(modKey, actionState));
+			// checks if there is a "single" non-mod-key before into list
+			if (modKey > 0) {
+				var insertPos:Int = 0;
+				for (ma in keyState.keyCombo) {
+					if ( (!actionState.single && ma.actionState.single) ||
+					     ( ma.keyCode == 0 && (ma.actionState.single || actionState.single) )
+					   ) break;
+					insertPos++;
+				}
+				keyState.keyCombo.insert(insertPos, new KeyCombo(modKey, actionState));
+			}
+			else keyState.keyCombo.push(new KeyCombo(modKey, actionState));			
 		#end
 	}
-
-	
 	
 	
 	public static var step:Int = 0;
