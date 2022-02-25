@@ -37,4 +37,8 @@ package input2action.util;
         for (item in this) for (v in item) a.push(cast v);
         return a;
     }
+	@:from public static function fromNestedArrayItem<T>(v:T):NestedArray<T> {
+        return [v];
+    }
+
 }

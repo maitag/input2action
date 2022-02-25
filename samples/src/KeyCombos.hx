@@ -23,18 +23,20 @@ class KeyCombos extends Application {
 				// only trigger if pressed alone and not if there is also another key-combo action for this keys
 				single:true,
 				
-				keyboard: [ KeyCode.RETURN ],
-				gamepad: [ GamepadButton.RIGHT_STICK ]				
+				keyboard: KeyCode.RETURN,
+				gamepad:  GamepadButton.RIGHT_STICK
 			},
-			{	action: "modEnter",		
+			{	action: "modEnter",
+			
+				// key-combinations need to define allways as array inside array!
 				keyboard: [
 					[KeyCode.LEFT_SHIFT, KeyCode.RETURN],   // key-combo ("left shift" have to press first)
 					[KeyCode.RIGHT_SHIFT, KeyCode.RETURN],  // key-combo ("right shift" have to press first)
-					KeyCode.NUMPAD_ENTER, KeyCode.RETURN2 // additional multiple single keys for this action
+					KeyCode.NUMPAD_ENTER, KeyCode.RETURN2   // additional single keys
 			    ],				
 				gamepad: [ 
 					[GamepadButton.A, GamepadButton.RIGHT_STICK],  // key-combo ("A" have to press first)
-				    GamepadButton.LEFT_STICK 
+				    GamepadButton.LEFT_STICK  // additional single key
 				]
 			},
 			
@@ -42,7 +44,7 @@ class KeyCombos extends Application {
 			{	action: "fireLeft",
 				single:true,
 				keyboard: [ KeyCode.LEFT_CTRL, KeyCode.LEFT_ALT ],
-				gamepad:  [ GamepadButton.LEFT_SHOULDER ]
+				gamepad:  GamepadButton.LEFT_SHOULDER
 			},
 			{	action: "modXfireLeft", // TODO: reverseCombo:true, to add automatically reverse combination
 				// key-combos
@@ -59,7 +61,7 @@ class KeyCombos extends Application {
 			{	action: "fireRight",
 				//single:true,
 				keyboard: [ KeyCode.RIGHT_CTRL, KeyCode.SPACE ],
-				gamepad:  [ GamepadButton.RIGHT_SHOULDER ]
+				gamepad:  GamepadButton.RIGHT_SHOULDER
 			},
 			{	action: "modXfireRight",
 				// key-combos

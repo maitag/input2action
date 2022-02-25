@@ -21,44 +21,44 @@ class SimpleConfig extends Application {
 		// bindings for keyboard and gamepad:
 		var actionConfig:ActionConfig = [
 			{	action: "menu",
-				keyboard: [ KeyCode.ESCAPE ],
-				gamepad: [ GamepadButton.BACK ]
+				keyboard: KeyCode.ESCAPE,
+				gamepad:  GamepadButton.BACK
 			},
 			{	action: "inventory",
-				keyboard: [ KeyCode.I ],
-				gamepad: [ GamepadButton.A ]
+				keyboard: KeyCode.I,
+				gamepad:  GamepadButton.A
 			},
 			{	action: "enter",
 				keyboard: [ KeyCode.RETURN, KeyCode.RETURN2 ],
-				gamepad: [ GamepadButton.RIGHT_STICK ]
+				gamepad:  [ GamepadButton.RIGHT_STICK ]
 			},
 			{	action: "modEnter",
-				keyboard: [ KeyCode.NUMPAD_ENTER ],
-				gamepad: [ GamepadButton.LEFT_STICK ]
+				keyboard: KeyCode.NUMPAD_ENTER,
+				gamepad:  GamepadButton.LEFT_STICK
 			},
 			{	action: "fireLeft",
 				keyboard: [ KeyCode.LEFT_CTRL, KeyCode.LEFT_ALT ],
-				gamepad: [ GamepadButton.LEFT_SHOULDER ]
+				gamepad:  [ GamepadButton.LEFT_SHOULDER ]
 			},
 			{	action: "fireRight",
 				keyboard: [ KeyCode.RIGHT_CTRL, KeyCode.SPACE, KeyCode.RIGHT_ALT ],
-				gamepad: [ GamepadButton.RIGHT_SHOULDER ]
+				gamepad:  [ GamepadButton.RIGHT_SHOULDER ]
 			},
 			{	action: "moveUp",
 				keyboard: [ KeyCode.W, KeyCode.UP],
-				gamepad: [ GamepadButton.DPAD_UP ]
+				gamepad:  [ GamepadButton.DPAD_UP ]
 			},
 			{	action: "moveDown",
 				keyboard: [ KeyCode.S, KeyCode.DOWN],
-				gamepad: [ GamepadButton.DPAD_DOWN ]
+				gamepad:  [ GamepadButton.DPAD_DOWN ]
 			},
 			{	action: "moveLeft",
 				keyboard: [ KeyCode.A, KeyCode.LEFT],
-				gamepad: [ GamepadButton.DPAD_LEFT ]
+				gamepad:  [ GamepadButton.DPAD_LEFT ]
 			},
 			{	action: "moveRight",
 				keyboard: [ KeyCode.D, KeyCode.RIGHT],
-				gamepad: [ GamepadButton.DPAD_RIGHT ]
+				gamepad:  [ GamepadButton.DPAD_RIGHT ]
 			},
 		];
 		
