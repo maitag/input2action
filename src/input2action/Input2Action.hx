@@ -121,17 +121,22 @@ class Input2Action
 				if (actionMapItem != null && actionMapItem.action != null)
 				{
 					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);										
+					#if input2action_debug
+					var name = ' into "' + actionState.name + '"-action'; 
+					#else
+					var name = "";
+					#end
 					for (keys in actionConfigItem.keyboard) {
 						switch (keys.length)
 						{
 							case 1:	key = fromKeyCode(keys[0]); modkey = -1; 
 							case 2:	
-								#if input2action_singlekey
-								throw('ERROR, multiple keys is disabled by compiler define: "input2action_singlekey"');
+								#if input2action_noKeyCombos
+								throw('ERROR$name, key-combinations is disabled by compiler define "input2action_noKeyCombos"');
 								#else
 								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
 								#end
-							default: throw("ERROR, only one modifier key is allowed!");
+							default: throw('ERROR$name, only one modifier key is allowed!');
 						}						
 						keyboardState.addAction(actionState, key, modkey);						
 					}
@@ -212,25 +217,33 @@ class Input2Action
 				actionMapItem = actionMap.get(actionConfigItem.action);
 				if (actionMapItem.action != null)
 				{
-					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);					
+					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);
+					#if input2action_debug
+					var name = ' into "' + actionState.name + '"-action';
+					#else
+					var name = "";
+					#end
+
 					for (keys in actionConfigItem.gamepad) {
 						switch (keys.length)
 						{
 							case 1:	key = keys[0]; modkey = -1; 
 							case 2:	
-								#if input2action_singlekey
-								throw('ERROR, multiple keys is disabled by compiler define: "input2action_singlekey"');
+								#if input2action_noKeyCombos
+								throw('ERROR$name, key-combinations is disabled by compiler define "input2action_noKeyCombos"');
 								#else
 								key = keys[1]; modkey = keys[0];
 								#end
-							default: throw("ERROR, only one modifier key is allowed!");
+							default: throw("ERROR$name, only one modifier key is allowed!");
 						}
 						gamepadState.addAction(actionState, key, modkey);						
 					}
 				}				
 			}
 		}
-		
+		// debug
+		trace(gamepadState);
+
 		enableGamepad(player);
 	}
 	

@@ -8,6 +8,7 @@ import input2action.Input2Action;
  * by Sylvio Sell - Rostock 2022
 */
 
+@:access(input2action.Input2Action)
 abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 {
 	
@@ -25,15 +26,32 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 		
 		#if input2action_noKeyCombos
-			if (keyState.singleKeyAction != null) throw('Error, the single action to key $key is already defined');
+			if (keyState.singleKeyAction != null) {
+				#if input2action_debug
+				var name = 'of "' + actionState.name + '"-action'; 
+				var ma_name = 'is already defined for "' + keyState.singleKeyAction.name + '"-action'; 
+				#else
+				var name = "";
+				var ma_name = "is defined for more then one action";
+				#end
+				throw('Error, ${keyCodeName(key)} ${name} ${ma_name}');
+			}
 			keyState.singleKeyAction = actionState;
 		#else
 			if (keyState.keyCombo == null)
 				keyState.keyCombo = new Array<KeyCombo>();
 			else {
 				for (ma in keyState.keyCombo)
-					// TODO: output the gamepad-button- or keyboard-key-name !
-					if (ma.keyCode == modKey) throw('Error, the action to key $key ${(modKey > -1) ? 'and modkey $modKey ' : ""}is already defined');
+					if (ma.keyCode == modKey) {
+						#if input2action_debug
+						var name = 'of "' + actionState.name + '"-action'; 
+						var ma_name = 'is already defined for "' + ma.actionState.name + '"-action'; 
+						#else
+						var name = "";
+						var ma_name = "is defined for more then one action";
+						#end
+						throw('Error, ${(modKey > -1) ? keyCodeName(modKey)+" + " : ""}${keyCodeName(key)} ${name} ${ma_name}');
+					}
 			}
 			
 			// create empty keystate for the modkey
@@ -150,6 +168,13 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 	}
 	
+	// TODO: also for joysticks !
+	public function keyCodeName(key:Int):String {
+		if (Input2Action.MAX_USABLE_KEYCODES == this.length)
+			return Input2Action.keyCodeName.get( Input2Action.toKeyCode(key) );
+		else return Input2Action.gamepadButtonName.get(key);
+	}
+		
 	
 	@:to public function toString():String 
 	{
@@ -163,16 +188,11 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			#end
 		}
 
-		// TODO: output the gamepad-button- or keyboard-key-name !
-		var keyCodeName = function(key:Int):String {
-			return Input2Action.keyCodeName.get( Input2Action.toKeyCode(key) );
-		}
-		
 		for (i in 0...this.length) {
 			var keyState = this.get(i);
 			if (keyState != null) {
 				out += '\n\n';
-				out += Input2Action.keyCodeName.get(Input2Action.toKeyCode(i));
+				out += keyCodeName(i);
 				out += (keyState.isDown) ? " (isDown)" : " (isUp)";
 				
 				#if input2action_noKeyCombos
