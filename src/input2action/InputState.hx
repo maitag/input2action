@@ -17,7 +17,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 	}
 
 
-	public inline function addAction(actionState:ActionState, key:Int, modKey:Int = 0) {
+	public inline function addAction(actionState:ActionState, key:Int, modKey:Int = -1) {
 		var keyState = this.get(key);
 		if (keyState == null) {
 			keyState = new KeyState();
@@ -28,18 +28,23 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			if (keyState.singleKeyAction != null) throw('Error, the single action to key $key is already defined');
 			keyState.singleKeyAction = actionState;
 		#else
-			if (keyState.keyCombo == null) keyState.keyCombo = new Array<KeyCombo>();
-			else for (ma in keyState.keyCombo) if (ma.keyCode == modKey) throw('Error, the action to key $key and modkey $modKey is already defined');
+			if (keyState.keyCombo == null)
+				keyState.keyCombo = new Array<KeyCombo>();
+			else {
+				for (ma in keyState.keyCombo)
+					// TODO: output the gamepad-button- or keyboard-key-name !
+					if (ma.keyCode == modKey) throw('Error, the action to key $key ${(modKey > -1) ? 'and modkey $modKey ' : ""}is already defined');
+			}
 			
 			// create empty keystate for the modkey
-			if (modKey > 0 && this.get(modKey) == null) this.set(modKey, new KeyState());
+			if (modKey > -1 && this.get(modKey) == null) this.set(modKey, new KeyState());
 			
 			// checks if there is a "single" non-mod-key before into list
-			if (modKey > 0) {
+			if (modKey > -1) {
 				var insertPos:Int = 0;
 				for (ma in keyState.keyCombo) {
 					if ( (!actionState.single && ma.actionState.single) ||
-					     ( ma.keyCode == 0 && (ma.actionState.single || actionState.single) )
+					     ( ma.keyCode == -1 && (ma.actionState.single || actionState.single) )
 					   ) break;
 					insertPos++;
 				}
@@ -80,7 +85,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 				
 				for (keyCombo in keyState.keyCombo) 
 				{
-					if (keyCombo.keyCode == 0 || isDown(keyCombo.keyCode))
+					if (keyCombo.keyCode == -1 || isDown(keyCombo.keyCode))
 					{
 						actionState = keyCombo.actionState;
 						
@@ -158,6 +163,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			#end
 		}
 
+		// TODO: output the gamepad-button- or keyboard-key-name !
 		var keyCodeName = function(key:Int):String {
 			return Input2Action.keyCodeName.get( Input2Action.toKeyCode(key) );
 		}
@@ -176,7 +182,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 					for (keyCombo in keyState.keyCombo) {
 						out += '\n   ';
 						var actionState:ActionState = keyCombo.actionState;
-						if (keyCombo.keyCode > 0) out += keyCodeName(keyCombo.keyCode) + ": ";
+						if (keyCombo.keyCode > -1) out += keyCodeName(keyCombo.keyCode) + ": ";
 						out += '' +  actionName(actionState);
 						out += (actionState.single) ? " (single)" : "";
 					}						

@@ -24,7 +24,7 @@ class KeyCombos extends Application {
 				single:true,
 				
 				keyboard: KeyCode.RETURN,
-				gamepad:  GamepadButton.RIGHT_STICK
+				gamepad:  GamepadButton.LEFT_STICK
 			},
 			{	action: "modEnter",
 			
@@ -35,8 +35,8 @@ class KeyCombos extends Application {
 					KeyCode.NUMPAD_ENTER, KeyCode.RETURN2   // additional single keys
 			    ],				
 				gamepad: [ 
-					[GamepadButton.A, GamepadButton.RIGHT_STICK],  // key-combo ("A" have to press first)
-				    GamepadButton.LEFT_STICK  // additional single key
+					[GamepadButton.A, GamepadButton.LEFT_STICK],  // key-combo ("A" have to press first)
+				    GamepadButton.RIGHT_STICK  // additional single key
 				]
 			},
 			

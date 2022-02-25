@@ -30,11 +30,11 @@ class SimpleConfig extends Application {
 			},
 			{	action: "enter",
 				keyboard: [ KeyCode.RETURN, KeyCode.RETURN2 ],
-				gamepad:  [ GamepadButton.RIGHT_STICK ]
+				gamepad:  [ GamepadButton.LEFT_STICK ]
 			},
 			{	action: "modEnter",
 				keyboard: KeyCode.NUMPAD_ENTER,
-				gamepad:  GamepadButton.LEFT_STICK
+				gamepad:  GamepadButton.RIGHT_STICK
 			},
 			{	action: "fireLeft",
 				keyboard: [ KeyCode.LEFT_CTRL, KeyCode.LEFT_ALT ],

@@ -124,7 +124,7 @@ class Input2Action
 					for (keys in actionConfigItem.keyboard) {
 						switch (keys.length)
 						{
-							case 1:	key = fromKeyCode(keys[0]); modkey = 0; 
+							case 1:	key = fromKeyCode(keys[0]); modkey = -1; 
 							case 2:	
 								#if input2action_singlekey
 								throw('ERROR, multiple keys is disabled by compiler define: "input2action_singlekey"');
@@ -216,7 +216,7 @@ class Input2Action
 					for (keys in actionConfigItem.gamepad) {
 						switch (keys.length)
 						{
-							case 1:	key = keys[0]; modkey = 0; 
+							case 1:	key = keys[0]; modkey = -1; 
 							case 2:	
 								#if input2action_singlekey
 								throw('ERROR, multiple keys is disabled by compiler define: "input2action_singlekey"');
