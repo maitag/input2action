@@ -3,16 +3,12 @@ package;
 import haxe.ds.Vector;
 import lime.app.Application;
 import lime.graphics.RenderContext;
-import lime.system.Locale;
 import lime.ui.Gamepad;
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
-import lime.ui.Gamepad;
-import lime.ui.Touch;
 //import lime.ui.GamepadAxis;
 
 import input2action.ActionConfig;
-import input2action.ActionMap;
 import input2action.Input2Action;
 
 
@@ -83,17 +79,15 @@ class MultiConfig extends Application {
 			}
 		}
 
-		// TODO:
-		//input2Action.onGamePadDisconnect() = function(player:Int) {
-		//	  availableGamepad.set(player, null);
-		//    input2Action.removeGamepad(1);
-		//    //game.playerDisconnected(1);
-		//}
+		input2Action.onGamepadDisconnect = function(player:Int) {
+			trace('players $player gamepad disconnected');
+			availableGamepad.set(player, null);
+			
+			// this will be called automatically:
+			//input2Action.removeGamepad(player);
+		}
 		
-		
-		// update only the keyboard bindings for player 1
-		//input2Action.setKeyboard(1, actionConfig1);
-		
+				
 		// TODO
 		//input2Action.setJoystick(2, joystick, actionConfig2);
 

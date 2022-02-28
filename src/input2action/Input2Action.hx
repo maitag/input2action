@@ -188,12 +188,13 @@ class Input2Action
 	
 	public static var gamepadButtonName(default, never) = EnumMacros.nameByValue(GamepadButton);
 	public static var gamepadButtonValue(default, never) = EnumMacros.valueByName(GamepadButton);
-				
+	
+	// TODO:
 	var gamepadPlayer = new IntMap<Gamepad>(); // TODO: Vector<Gamepad> and init with maxPlayer value
 	var gamepadStates = new Map<Gamepad,InputState>();
 	
-	public function setGamepad(player:Int=0, gamepad:Gamepad, actionConfig:ActionConfig = null) {
-		
+	public function setGamepad(player:Int = 0, gamepad:Gamepad, actionConfig:ActionConfig = null)
+	{		
 		if (actionConfig == null) actionConfig = actionConfigDefault;
 		
 		// TODO:
@@ -247,9 +248,27 @@ class Input2Action
 		enableGamepad(player);
 	}
 	
-	// TODO:
-	public function removeGamepad(gamepad:Gamepad) {
+	public function removeGamepad(player:Int, gamepad:Gamepad = null) {
 		
+		// TODO: one player -> many gamepads
+		// TODO: if 2 players sharing 1 gamepad, only remove that specific player from inputstate!
+		//var gamepad = gamepadPlayer.get(player);
+		
+		if (gamepad == null) {
+			gamepad = gamepadPlayer.get(player);
+			if (gamepad != null) gamepadPlayer.remove(player);
+		}
+		
+		if (gamepad != null) {
+			var gamepadState = gamepadStates.get(gamepad);
+			if (gamepadState != null) {
+				gamepadStates.remove(gamepad);
+				gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad, player));
+				gamepad.onButtonDown.remove(gamepadButtonDown.bind(gamepadState));
+				gamepad.onButtonUp.remove(gamepadButtonUp.bind(gamepadState));
+				gamepad.onAxisMove.remove(gamepadAxisMove.bind(gamepadState));
+			}
+		}
 	}
 	
 	public function swapGamepad(player:Int) {
@@ -260,9 +279,12 @@ class Input2Action
 		var gamepad = gamepadPlayer.get(player);
 		var gamepadState = gamepadStates.get(gamepad);
 		if (gamepad != null) {
+			gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad, player));
 			gamepad.onButtonDown.add(gamepadButtonDown.bind(gamepadState));
 			gamepad.onButtonUp.add(gamepadButtonUp.bind(gamepadState));			
 			gamepad.onAxisMove.add(gamepadAxisMove.bind(gamepadState));
+			
+		
 		}
 	}
 	
@@ -270,6 +292,7 @@ class Input2Action
 		var gamepad = gamepadPlayer.get(player);
 		var gamepadState = gamepadStates.get(gamepad);
 		if (gamepad != null) {
+			gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad, player));
 			gamepad.onButtonDown.remove(gamepadButtonDown.bind(gamepadState));
 			gamepad.onButtonUp.remove(gamepadButtonUp.bind(gamepadState));
 			gamepad.onAxisMove.remove(gamepadAxisMove.bind(gamepadState));
@@ -280,25 +303,17 @@ class Input2Action
 	public var onGamepadConnect:Gamepad->Void = null;
 	inline function gamepadConnect (gamepad:Gamepad):Void
 	{		
-		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);
-		
-		// TODO: inside of setGamepad -> gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad, player));
-		gamepad.onDisconnect.add(gamepadDisconnect.bind(gamepad));
-		
+		trace ("Gamepad connected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);		
 		if (onGamepadConnect != null) onGamepadConnect(gamepad);
 	}
 	
-	public var onGamepadDisconnect:Gamepad->Int->Void = null;
+	public var onGamepadDisconnect:Int->Void = null;
 	// TODO: inline function gamepadDisconnect (gamepad:Gamepad, player:Int):Void 
-	inline function gamepadDisconnect (gamepad:Gamepad):Void 
+	inline function gamepadDisconnect (gamepad:Gamepad, player:Int):Void 
 	{		
-		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);	
-		
-		// TODO: remove from gamepadPlayer and gamepadStates
-		// gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad, player));
-		gamepad.onDisconnect.remove(gamepadDisconnect.bind(gamepad));
-
-		if (onGamepadDisconnect != null) onGamepadDisconnect(gamepad, -1);
+		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);			
+		removeGamepad(player, gamepad);
+		if (onGamepadDisconnect != null) onGamepadDisconnect(player);
 	}
 	
 	inline function gamepadButtonDown(gamepadState:InputState, button:GamepadButton):Void
