@@ -145,7 +145,7 @@ class Input2Action
 		}
 		
 		// debug
-		trace(keyboardState);
+		// trace(keyboardState);
 
 	}
 	
@@ -243,7 +243,7 @@ class Input2Action
 			}
 		}
 		// debug
-		trace(gamepadState);
+		// trace(gamepadState);
 
 		enableGamepad(player);
 	}
@@ -308,7 +308,6 @@ class Input2Action
 	}
 	
 	public var onGamepadDisconnect:Int->Void = null;
-	// TODO: inline function gamepadDisconnect (gamepad:Gamepad, player:Int):Void 
 	inline function gamepadDisconnect (gamepad:Gamepad, player:Int):Void 
 	{		
 		trace ("Gamepad disconnected: " + gamepad.id + ", " + gamepad.guid + ", " + gamepad.name);			
@@ -378,44 +377,7 @@ class Input2Action
 	
 	
 	
-/*		
-		var writer = new JsonWriter<ActionConfig>(); // Creating a writer for Cls class
-		var jsonString = writer.write(actionConfig);
-		trace(jsonString);
-		trace("-----------");
-		
-		actionConfig.set("action2",
-			{
-				down:false,
-				up:true, repeat:false, repeatRate:1100,
-				keyboard  : [ KeyCode.LEFT, KeyCode.A, [KeyCode.LEFT_SHIFT, KeyCode.A], [KeyCode.RIGHT_SHIFT, KeyCode.A]  ],
-				gamepad   : [ GamepadButton.LEFT_STICK ]
-			}
-		);
-		
-		actionConfig.remove("action1");
-		
-		jsonString = writer.write(actionConfig);
-		trace(jsonString);
-		trace("-----------");
-		
-*/		
-		
-		
-		//var parser = new json2object.JsonParser<Map<String, ActionConfigItem>>(); // Creating a parser for Cls class
-		//parser.fromJson(jsonString, "test.json"); // Parsing a string. A filename is specified for errors management
-		//var actionConfig1:ActionConfig = parser.value; // Access the parsed class
-		//trace(actionConfig1);
-		
-/*		for (e in parser.errors) {
-				var pos = switch (e) {case IncorrectType(_, _, pos) | IncorrectEnumValue(_, _, pos) | InvalidEnumConstructor(_, _, pos) | UninitializedVariable(_, pos) | UnknownVariable(_, pos) | ParserError(_, pos) | CustomFunctionException(_, pos): pos;}
-				trace(pos.lines[0].number);
-				if (pos != null) haxe.Log.trace(json2object.ErrorUtils.convertError(e), {fileName:pos.file, lineNumber:pos.lines[0].number,className:"",methodName:""});
-			}
-*/		
-	
-	
-	
+
 	
 	
 

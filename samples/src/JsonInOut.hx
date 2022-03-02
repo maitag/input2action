@@ -8,23 +8,29 @@ import lime.ui.GamepadButton;
 //import lime.ui.GamepadAxis;
 
 import input2action.ActionConfig;
+import input2action.JsonConfig;
 import input2action.Input2Action;
 
 
-class KeyCombos extends Application {
-			
-	public override function onWindowCreate ():Void 
+class JsonInOut extends Application {
+	
+		
+	public override function onWindowCreate():Void 
 	{
 		// bindings for keyboard and gamepad:
-		var actionConfig:ActionConfig = 
-		[
+		var actionConfig:ActionConfig = [
+			{	action: "menu",
+				keyboard: KeyCode.ESCAPE,
+				gamepad:  [ GamepadButton.BACK, GamepadButton.START ]
+			},
+			{	action: "inventory",
+				keyboard: KeyCode.I,
+				gamepad:  GamepadButton.A
+			},
 			{	action: "enter",
-				
-				// only trigger if pressed alone and not if there is also another key-combo action for this keys
-				single:true,
-				
+				single: true,
 				keyboard: KeyCode.RETURN,
-				gamepad:  GamepadButton.LEFT_STICK
+				gamepad:  [ GamepadButton.LEFT_STICK ]
 			},
 			{	action: "modEnter",
 			
@@ -39,48 +45,50 @@ class KeyCombos extends Application {
 				    GamepadButton.RIGHT_STICK  // additional single key
 				]
 			},
+		];
+		trace(actionConfig);
+		trace(JsonConfig.fromActionConfig(actionConfig));
+		trace(JsonConfig.fromActionConfig(actionConfig).toActionConfig());
+		
+		// --------------------------------------------
+		
+		var jsonConfig:JsonConfig = [
+			{	action: "menu",
+				keyboard: "ESCAPE",
+				gamepad:  "BACK, START"
+			},
+			{	action: "modEnter",
 			
-			// -----------------------
-			{	action: "fireLeft",
-				single:true,
-				keyboard: [ KeyCode.LEFT_CTRL, KeyCode.LEFT_ALT ],
-				gamepad:  GamepadButton.LEFT_SHOULDER
-			},
-			{	action: "modXfireLeft", // TODO: reverseCombo:true, to add automatically reverse combination
-				// key-combos
-				keyboard: [ [KeyCode.X, KeyCode.LEFT_CTRL], [KeyCode.X, KeyCode.LEFT_ALT] ],
-				gamepad:  [ [GamepadButton.X, GamepadButton.LEFT_SHOULDER ] ]
-			},
-			{	action: "modYfireLeft",
-				// key-combos
-				keyboard: [ [KeyCode.Y, KeyCode.LEFT_CTRL], [KeyCode.Y, KeyCode.LEFT_ALT] ],
-				gamepad:  [ [GamepadButton.Y, GamepadButton.LEFT_SHOULDER ] ]
-			},
-			
-			// -----------------------
-			{	action: "fireRight",
-				//single:true,
-				keyboard: [ KeyCode.RIGHT_CTRL, KeyCode.SPACE ],
-				gamepad:  GamepadButton.RIGHT_SHOULDER
-			},
-			{	action: "modXfireRight",
-				// key-combos
-				// single:true,
-				keyboard: [ [KeyCode.X, KeyCode.RIGHT_CTRL], [KeyCode.X, KeyCode.SPACE] ],
-				gamepad:  [ [GamepadButton.X, GamepadButton.RIGHT_SHOULDER ] ]
-			},
-			{	action: "modYfireRight",
-				// key-combos
-				single:true,
-				keyboard: [ [KeyCode.Y, KeyCode.RIGHT_CTRL], [KeyCode.Y, KeyCode.SPACE] ],
-				gamepad:  [ [GamepadButton.Y, GamepadButton.RIGHT_SHOULDER ] ]
+				// key-combinations need to define allways as array inside array!
+				keyboard: "[LEFT_SHIFT, RETURN], [RIGHT_SHIFT, RETURN], NUMPAD_ENTER, RETURN2",				
+				gamepad: "[A, LEFT_STICK], RIGHT_STICK",
 			},
 		];
-				
+		
+		trace(jsonConfig);
+		
+		// --------------------------------------------
+		
+		var jsonString = '[
+			{	"action": "menu",
+				"keyboard": "ESCAPE",
+				"gamepad" : "BACK, START"
+			},
+			{	"action": "modEnter",
+			
+				// key-combinations need to define allways as array inside array!
+				"keyboard": "[LEFT_SHIFT, RETURN], [RIGHT_SHIFT, RETURN], NUMPAD_ENTER, RETURN2",				
+				"gamepad" : "[A, LEFT_STICK], RIGHT_STICK"
+			},
+		]';
+		
+		//var jsonConfig:JsonConfig = jsonString;
+		//trace(jsonConfig);
+		
+		trace(JsonConfig.fromString(jsonString, "test.json"));
 		
 		
-		//trace(actionConfig.toJson);
-
+		
 		
 		// contains the actions and mappings to the action-identifiers
 		var application = new Action();
@@ -99,8 +107,6 @@ class KeyCombos extends Application {
 		    trace('players $player gamepad disconnected');
 		}
 		
-		
-		//trace(actionConfig.toJson);
 		
 		
 		input2Action.enable(window);

@@ -75,8 +75,8 @@ class SimpleConfig extends Application {
 		    input2Action.setGamepad(gamepad);
 		}
 
-		input2Action.onGamepadDisconnect = function(gamepad:Gamepad, player:Int) {
-		    input2Action.removeGamepad(gamepad); // TODO: remove automatically all the time
+		input2Action.onGamepadDisconnect = function(player:Int) {
+		    trace('players $player gamepad disconnected');
 		}
 		
 		

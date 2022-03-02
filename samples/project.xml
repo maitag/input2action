@@ -3,11 +3,11 @@
 	
 	<meta title="Input2Action" package="lime.samples.input2actions" version="0.5.0" company="semmi" />
 	
-	<app main="SimpleConfig" path="bin" file="Input2Action" />
+	<app main="JsonInOut" path="bin" file="Input2Action" />
 	<!-- SimpleConfig -->
 	<!-- KeyCombos -->
 	<!-- MultiConfig -->
-	<!-- JsonConfig -->
+	<!-- JsonInOut -->
 	
 	
 	<source path="src" />
@@ -20,7 +20,7 @@
 	<haxedef name="input2action_debug" />
 	
 	<!-- optimize if no need of key-combinations: -->
-	<!-- <haxedef name="input2action_noKeyCombos" />  -->
+	<!-- <haxedef name="input2action_noKeyCombos" /> -->
 		
 	<haxeflag name="-dce" value="full" />
 	

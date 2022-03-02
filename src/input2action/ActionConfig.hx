@@ -4,18 +4,13 @@ import input2action.util.NestedArray;
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
 
-typedef ActionConfig = Array<ActionConfigItem>;
-// TODO: own abstract Array and extra spice to set defaults or force config values
+//typedef ActionConfig = Array<ActionConfigItem>;
+@:forward
+abstract ActionConfig(Array<ActionConfigItem>) from Array<ActionConfigItem> to Array<ActionConfigItem>
+{
+// TODO: extra spice to set defaults or force config values
 
-/*typedef ActionConfigItem = {
-	action:String,
-	?single:Bool,
-	
-	?keyboard:NestedArray<KeyCode>,
-	?gamepad :NestedArray<GamepadButton>,
-	?joystick:NestedArray<Int>,	
 }
-*/
 
 
 @:structInit
