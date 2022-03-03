@@ -72,8 +72,9 @@ class JsonInOut extends Application {
 		
 		// create an actionConfig by json
 		var actionConfig = ActionConfig.fromJson(jsonString, "test.json");
-		
-		trace("actionConfig:", actionConfig);
+
+
+		//trace("actionConfig:", actionConfig);
 		
 		
 		// --------------------------------------------

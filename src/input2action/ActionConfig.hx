@@ -7,6 +7,11 @@ import lime.ui.GamepadButton;
 @:forward
 abstract ActionConfig(Array<ActionConfigItem>) from Array<ActionConfigItem> to Array<ActionConfigItem>
 {
+/*	public inline function new()
+	{
+		this = new Array<ActionConfigItem>();
+	}
+*/	
 	public static function fromJson(jsonString:String, debugFilename:String = ""):ActionConfig {
 		return JsonConfig.fromString(jsonString, debugFilename).toActionConfig();
 	}

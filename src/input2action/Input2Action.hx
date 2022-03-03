@@ -114,18 +114,19 @@ class Input2Action
 		if (keyboardState==null) keyboardState = new InputState(MAX_USABLE_KEYCODES);
 
 		for (actionConfigItem in actionConfig)
-		{
+		{	
 			if (actionConfigItem.keyboard != null && actionConfigItem.keyboard.length != 0) 
-			{
+			{	
 				actionMapItem = actionMap.get(actionConfigItem.action);				
 				if (actionMapItem != null && actionMapItem.action != null)
-				{
+				{	
 					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);										
 					#if input2action_debug
 					var name = ' into "' + actionState.name + '"-action'; 
 					#else
 					var name = "";
 					#end
+					
 					for (keys in actionConfigItem.keyboard) {
 						switch (keys.length)
 						{
@@ -137,7 +138,8 @@ class Input2Action
 								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
 								#end
 							default: throw('ERROR$name, only one modifier key is allowed!');
-						}						
+						}
+						
 						keyboardState.addAction(actionState, key, modkey);						
 					}
 				}				
