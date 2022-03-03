@@ -92,39 +92,43 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 		for (j in this) {
 			
 			var keyboard:NestedArray<KeyCode> = [];
-			var s = rSpaces.replace(j.keyboard,"");
-			while (s.length > 0) {
-				if (rKeyCombo.match(s)) {
-					keyboard.push( [for (i in rKeyCombo.matched(1).split(",")) Input2Action.keyCodeValue.get(i) ] );// TODO: check valid key!
-					s = rKeyCombo.replace(s, "");
-				}
-				else if (rKeyEntry.match(s)) {
-					keyboard.push( [Input2Action.keyCodeValue.get(rKeyEntry.matched(1))] ); // TODO: check valid key!
-					s = rKeyEntry.replace(s, "");
-				}
-				else break; // TODO: throw error
+			if (j.keyboard != null) {
+				var s = rSpaces.replace(j.keyboard,"");
+				while (s.length > 0) {
+					if (rKeyCombo.match(s)) {
+						keyboard.push( [for (i in rKeyCombo.matched(1).split(",")) Input2Action.keyCodeValue.get(i) ] );// TODO: check valid key!
+						s = rKeyCombo.replace(s, "");
+					}
+					else if (rKeyEntry.match(s)) {
+						keyboard.push( [Input2Action.keyCodeValue.get(rKeyEntry.matched(1))] ); // TODO: check valid key!
+						s = rKeyEntry.replace(s, "");
+					}
+					else break; // TODO: throw error
+				}	
 			}	
 			
 			var gamepad:NestedArray<GamepadButton> = [];
-			s = rSpaces.replace(j.gamepad,"");
-			while (s.length > 0) {
-				if (rKeyCombo.match(s)) {
-					gamepad.push( [for (i in rKeyCombo.matched(1).split(",")) Input2Action.gamepadButtonValue.get(i) ] );// TODO: check valid key!
-					s = rKeyCombo.replace(s, "");
-				}
-				else if (rKeyEntry.match(s)) {
-					gamepad.push( [Input2Action.gamepadButtonValue.get(rKeyEntry.matched(1))] ); // TODO: check valid key!
-					s = rKeyEntry.replace(s, "");
-				}
-				else break; // TODO: throw error
+			if (j.gamepad != null) {
+				var s = rSpaces.replace(j.gamepad,"");
+				while (s.length > 0) {
+					if (rKeyCombo.match(s)) {
+						gamepad.push( [for (i in rKeyCombo.matched(1).split(",")) Input2Action.gamepadButtonValue.get(i) ] );// TODO: check valid key!
+						s = rKeyCombo.replace(s, "");
+					}
+					else if (rKeyEntry.match(s)) {
+						gamepad.push( [Input2Action.gamepadButtonValue.get(rKeyEntry.matched(1))] ); // TODO: check valid key!
+						s = rKeyEntry.replace(s, "");
+					}
+					else break; // TODO: throw error
+				}	
 			}	
 			
 			actionConfig.push({
 					action : j.action,
 					single : j.single,
-					keyboard: keyboard,
-					gamepad: gamepad,
-					joystick : [], // TODO
+					keyboard : (keyboard.length > 0) ? keyboard : null,
+					gamepad  : (gamepad.length > 0) ? gamepad : null,
+					joystick : null, // TODO
 			});
 		}
 		return actionConfig;

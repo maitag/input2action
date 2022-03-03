@@ -46,30 +46,17 @@ class JsonInOut extends Application {
 				]
 			},
 		];
-		trace(actionConfig);
-		trace(JsonConfig.fromActionConfig(actionConfig));
-		trace(JsonConfig.fromActionConfig(actionConfig).toActionConfig());
+		
+		trace("actionConfig:", actionConfig);
+
+		// create an json formates string by actionConfig
+		var jsonString = actionConfig.toJson();
+		
+		trace("jsonString:", jsonString);
 		
 		// --------------------------------------------
 		
-		var jsonConfig:JsonConfig = [
-			{	action: "menu",
-				keyboard: "ESCAPE",
-				gamepad:  "BACK, START"
-			},
-			{	action: "modEnter",
-			
-				// key-combinations need to define allways as array inside array!
-				keyboard: "[LEFT_SHIFT, RETURN], [RIGHT_SHIFT, RETURN], NUMPAD_ENTER, RETURN2",				
-				gamepad: "[A, LEFT_STICK], RIGHT_STICK",
-			},
-		];
-		
-		trace(jsonConfig);
-		
-		// --------------------------------------------
-		
-		var jsonString = '[
+/*		var jsonString = '[
 			{	"action": "menu",
 				"keyboard": "ESCAPE",
 				"gamepad" : "BACK, START"
@@ -81,14 +68,15 @@ class JsonInOut extends Application {
 				"gamepad" : "[A, LEFT_STICK], RIGHT_STICK"
 			},
 		]';
+*/		
 		
-		//var jsonConfig:JsonConfig = jsonString;
-		//trace(jsonConfig);
+		// create an actionConfig by json
+		var actionConfig = ActionConfig.fromJson(jsonString, "test.json");
 		
-		trace(JsonConfig.fromString(jsonString, "test.json"));
+		trace("actionConfig:", actionConfig);
 		
 		
-		
+		// --------------------------------------------
 		
 		// contains the actions and mappings to the action-identifiers
 		var application = new Action();
