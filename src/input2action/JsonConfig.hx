@@ -1,4 +1,5 @@
 package input2action;
+
 import json2object.*;
 import input2action.ActionConfig;
 import input2action.Input2Action;
@@ -64,17 +65,17 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 		
 		for (a in actionConfig) {
 			jsonConfig.push({
-					action : a.action,
-					single : a.single,
-					keyboard: (a.keyboard == null) ? null :
-						[for (keys in a.keyboard) (keys.length == 1) ? Input2Action.keyCodeName.get(keys[0]) :// TODO: check valid key!
-							"[" +Input2Action.keyCodeName.get(keys[0]) + ", " + Input2Action.keyCodeName.get(keys[1]) + "]" // TODO: check valid key!
-						].join(", "),
-					gamepad: (a.gamepad == null) ? null :
-						[for (keys in a.gamepad) (keys.length == 1) ? Input2Action.gamepadButtonName.get(keys[0]) :// TODO: check valid key!
-							"[" +Input2Action.gamepadButtonName.get(keys[0]) + ", " + Input2Action.gamepadButtonName.get(keys[1]) + "]" // TODO: check valid key!
-						].join(", "),
-					joystick : null, // TODO
+				action : a.action,
+				single : a.single,
+				keyboard: (a.keyboard == null) ? null :
+					[for (keys in a.keyboard) (keys.length == 1) ? Input2Action.keyCodeName.get(keys[0]) :// TODO: check valid key!
+						"[" + Input2Action.keyCodeName.get(keys[0]) + ", " + Input2Action.keyCodeName.get(keys[1]) + "]" // TODO: check valid key!
+					].join(", "),
+				gamepad: (a.gamepad == null) ? null :
+					[for (keys in a.gamepad) (keys.length == 1) ? Input2Action.gamepadButtonName.get(keys[0]) :// TODO: check valid key!
+						"[" + Input2Action.gamepadButtonName.get(keys[0]) + ", " + Input2Action.gamepadButtonName.get(keys[1]) + "]" // TODO: check valid key!
+					].join(", "),
+				joystick : null, // TODO
 			});
 		}
 		
@@ -87,7 +88,7 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 	
 	// to ActionConfig
 	public function toActionConfig():ActionConfig {
-		var actionConfig:ActionConfig = [];// new ActionConfig();
+		var actionConfig:ActionConfig = [];
 		for (j in this) {
 			
 			// TODO: stringparsing better into separate function and with error-check for wrong keys
@@ -125,11 +126,11 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 			}	
 			
 			actionConfig.push({
-					action : j.action,
-					single : j.single,
-					keyboard : (keyboard.length > 0) ? keyboard : null,
-					gamepad  : (gamepad.length > 0) ? gamepad : null,
-					joystick : null, // TODO
+				action : j.action,
+				single : j.single,
+				keyboard : (keyboard.length > 0) ? keyboard : null,
+				gamepad  : (gamepad.length > 0) ? gamepad : null,
+				joystick : null, // TODO
 			});
 			
 		}

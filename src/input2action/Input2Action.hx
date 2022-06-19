@@ -5,6 +5,7 @@ import haxe.ds.StringMap;
 import haxe.ds.Vector;
 import input2action.ActionConfig;
 import input2action.ActionMap;
+import input2action.ErrorMsg;
 import input2action.InputState;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
@@ -13,8 +14,8 @@ import lime.ui.KeyCode;
 //import lime.ui.KeyModifier;
 import lime.ui.Window;
 
-import json2object.JsonParser;
-import json2object.JsonWriter;
+//import json2object.JsonParser;
+//import json2object.JsonWriter;
 
 
 import input2action.util.EnumMacros;
@@ -79,8 +80,8 @@ class Input2Action
 	
 	// ---------------- Keyboard -----------------------------
 	
-	public static var keyCodeName(default, never) = EnumMacros.nameByValue(KeyCode);
-	public static var keyCodeValue(default, never) = EnumMacros.valueByName(KeyCode);	
+	public static var keyCodeName(default, never):Map<KeyCode, String> = EnumMacros.nameByValue(KeyCode);
+	public static var keyCodeValue(default, never):Map<String, KeyCode> = EnumMacros.valueByName(KeyCode);	
 	
 	var keyboardState:InputState;
 	
@@ -121,23 +122,18 @@ class Input2Action
 				if (actionMapItem != null && actionMapItem.action != null)
 				{	
 					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);										
-					#if input2action_debug
-					var name = ' into "' + actionState.name + '"-action'; 
-					#else
-					var name = "";
-					#end
 					
 					for (keys in actionConfigItem.keyboard) {
 						switch (keys.length)
 						{
-							case 1:	key = fromKeyCode(keys[0]); modkey = -1; 
+							case 1:	key = fromKeyCode(keys[0]); modkey = -1;
 							case 2:	
 								#if input2action_noKeyCombos
-								throw('ERROR$name, key-combinations is disabled by compiler define "input2action_noKeyCombos"');
+								ErrorMsg.keyCombosNeedToEnable(actionState);
 								#else
 								key = fromKeyCode(keys[1]); modkey = fromKeyCode(keys[0]);
 								#end
-							default: throw('ERROR$name, only one modifier key is allowed!');
+							default: ErrorMsg.onlyOneModKeyAllowed(actionState);
 						}
 						
 						keyboardState.addAction(actionState, key, modkey);						
@@ -188,8 +184,8 @@ class Input2Action
 	
 	// ---------------- Gamepad -----------------------------
 	
-	public static var gamepadButtonName(default, never) = EnumMacros.nameByValue(GamepadButton);
-	public static var gamepadButtonValue(default, never) = EnumMacros.valueByName(GamepadButton);
+	public static var gamepadButtonName(default, never):Map<GamepadButton, String> = EnumMacros.nameByValue(GamepadButton);
+	public static var gamepadButtonValue(default, never):Map<String, GamepadButton> = EnumMacros.valueByName(GamepadButton);
 	
 	// TODO:
 	var gamepadPlayer = new IntMap<Gamepad>(); // TODO: Vector<Gamepad> and init with maxPlayer value
@@ -221,23 +217,18 @@ class Input2Action
 				if (actionMapItem.action != null)
 				{
 					var actionState = getOrCreateActionState(actionMapItem, actionConfigItem, player);
-					#if input2action_debug
-					var name = ' into "' + actionState.name + '"-action';
-					#else
-					var name = "";
-					#end
 
 					for (keys in actionConfigItem.gamepad) {
 						switch (keys.length)
 						{
-							case 1:	key = keys[0]; modkey = -1; 
+							case 1:	key = keys[0]; modkey = -1;
 							case 2:	
 								#if input2action_noKeyCombos
-								throw('ERROR$name, key-combinations is disabled by compiler define "input2action_noKeyCombos"');
+								ErrorMsg.keyCombosNeedToEnable(actionState);
 								#else
 								key = keys[1]; modkey = keys[0];
 								#end
-							default: throw("ERROR$name, only one modifier key is allowed!");
+							default: ErrorMsg.onlyOneModKeyAllowed(actionState);
 						}
 						gamepadState.addAction(actionState, key, modkey);						
 					}

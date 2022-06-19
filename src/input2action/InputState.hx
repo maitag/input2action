@@ -26,32 +26,15 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 		
 		#if input2action_noKeyCombos
-			if (keyState.singleKeyAction != null) {
-				#if input2action_debug
-				var name = 'of "' + actionState.name + '"-action'; 
-				var ma_name = 'is already defined for "' + keyState.singleKeyAction.name + '"-action'; 
-				#else
-				var name = "";
-				var ma_name = "is defined for more then one action";
-				#end
-				throw('Error, ${keyCodeName(key)} ${name} ${ma_name}');
-			}
+			if (keyState.singleKeyAction != null) ErrorMsg.alreadyDefinedKey(keyCodeName(key), actionState, keyState.singleKeyAction);
 			keyState.singleKeyAction = actionState;
 		#else
 			if (keyState.keyCombo == null)
 				keyState.keyCombo = new Array<KeyCombo>();
 			else {
 				for (ma in keyState.keyCombo)
-					if (ma.keyCode == modKey) {
-						#if input2action_debug
-						var name = 'of "' + actionState.name + '"-action'; 
-						var ma_name = 'is already defined for "' + ma.actionState.name + '"-action'; 
-						#else
-						var name = "";
-						var ma_name = "is defined for more then one action";
-						#end
-						throw('Error, ${(modKey > -1) ? keyCodeName(modKey)+" + " : ""}${keyCodeName(key)} ${name} ${ma_name}');
-					}
+					if (ma.keyCode == modKey)
+						ErrorMsg.alreadyDefinedKey( (modKey > -1) ? '${keyCodeName(modKey)} + ${keyCodeName(key)}' : keyCodeName(key), actionState, ma.actionState);
 			}
 			
 			// create empty keystate for the modkey
@@ -237,7 +220,7 @@ private class KeyState
 
 #if !input2action_noKeyCombos
 
-private class KeyCombo 
+private class KeyCombo
 {
 	public var downBy:Bool = false;
 	public var keyCode:Int;
