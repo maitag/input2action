@@ -13,7 +13,8 @@ class Action
 	{
 		// map action-identifiers to function-references
 		// options (false by default):
-		//   up:true - enables key/button up-event
+		//   up:true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
+		//             so the action is also called by key-up-event and its param "isDown" can be also FALSE (for key-UP)
 		//   
 		//   if multiple keys for this action is pressed/released together
 		//   each: true  - call the function on each of them
@@ -40,7 +41,7 @@ class Action
 			];
 
 				
-		// TODO: joysticks and gamepad-analogue-firebuttons
+		// TODO: joysticks and gamepad-analogue-input
 		/*	public var axisActionMap:AxisActionMap = [
 					"moveByStick" => {
 						action:moveByStick
