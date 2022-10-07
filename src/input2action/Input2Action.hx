@@ -78,7 +78,9 @@ class Input2Action
 	}
 	
 	
+	// -----------------------------------------------------
 	// ---------------- Keyboard -----------------------------
+	// -----------------------------------------------------
 	
 	public static var keyCodeName(default, never):Map<KeyCode, String> = EnumMacros.nameByValue(KeyCode);
 	public static var keyCodeValue(default, never):Map<String, KeyCode> = EnumMacros.valueByName(KeyCode);	
@@ -182,7 +184,9 @@ class Input2Action
 	
 	
 	
+	// -----------------------------------------------------
 	// ---------------- Gamepad -----------------------------
+	// -----------------------------------------------------
 	
 	public static var gamepadButtonName(default, never):Map<GamepadButton, String> = EnumMacros.nameByValue(GamepadButton);
 	public static var gamepadButtonValue(default, never):Map<String, GamepadButton> = EnumMacros.valueByName(GamepadButton);

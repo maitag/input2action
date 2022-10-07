@@ -64,10 +64,22 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		else return keyState.isDown;
 	}
 			
-	public inline function callDownActions(key:Int) {
+	public inline function callDownActions(key:Int) { // TODO: isKeyboard
 		var keyState = this.get(key);
 		if (keyState != null && !keyState.isDown) {
+		//#if input2action_repeat
+		//if (keyState != null) {
+		//#else
+		//if (keyState != null && (isKeyboard && !keyState.isDown)) {
+		//#end
+		
+			var repeated = false; 
+			#if input2action_repeat
+			if (!keyState.isDown) keyState.isDown = true;				
+			else if (isKeyboard) repeated = true;
+			#else
 			keyState.isDown = true;
+			#end
 			
 			#if input2action_noKeyCombos
 			if (keyState.singleKeyAction != null) {
@@ -109,6 +121,37 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 	}
 		
+	// TODO:
+	inline function _callDownAction(actionState:ActionState, isKeyboard:Bool, repeated:Bool) 
+	{	
+		#if input2action_repeat
+		if (isKeyboard && actionState.repeatKeyboardDefault) { // keyboard is using system-settings
+			actionState.callDownAction();
+		}
+		else if (!repeated) {
+			actionState.callDownAction();
+			if (actionState.repeatRate != 0) {
+				// https://try.haxe.org/#8248a0f7
+				if (actionState.repeatDelay == 0) {
+					if (actionState.timer == null) actionState.timer = new haxe.Timer(actionState.repeatRate);
+					actionState.timer.run = actionState.callDownAction();
+				}
+				else {
+					actionState.timer = new haxe.Timer(actionState.repeatDelay);
+					actionState.timer.run = function() {
+						actionState.callDownAction()
+						actionState.timer.stop();
+						actionState.timer = new haxe.Timer(actionState.repeatRate);
+						actionState.timer.run = actionState.callDownAction();
+					};
+				}
+			}
+		}
+		#else
+		if (!repeated) actionState.callDownAction();
+		#end
+	}
+	
 	public function callUpActions(key:Int) {
 		var keyState = this.get(key);
 		if (keyState != null && keyState.isDown) {
@@ -246,6 +289,14 @@ class ActionState {
 	public var action:ActionFunction = null;
 	
 	public var player:Int;
+
+	//TODO:
+	//#if input2action_repeat
+	//public var repeatKeyboardDefault:Bool;
+	//public var repeatDelay:Int;
+	//public var repeatRate:Int;
+	//public var timer:haxe.Timer = null;
+	//#end
 	
 	#if input2action_debug
 	public var name:String;
