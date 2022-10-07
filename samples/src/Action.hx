@@ -11,24 +11,27 @@ class Action
 	
 	public function new() 
 	{
-		// map action-identifiers to function-references
+		// ---------------------------------------------------------------------
+		// ----------- map action-identifiers to function-references -----------
+		// ---------------------------------------------------------------------
 	
-		// boolean options (all is false by default):
-		//
+		// --- boolean options (all is false by default) ---
+		
 		//   up: true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
 		//              so the action is also called by key-up-event and its "isDown" then will be FALSE
-		//   
+		
 		//   if multiple keys for this action is pressed/released together
 		//   each: true  - call the function on each of them
 		//         false - call only down-event if the first is pressed and up-event after the last is released
 	
-		
 		//   repeatKeyboardDefault: true - repeat the keyboard down-events and using the os-defaults (keyboard only!)
 		
-		// integer options (all is 0 by default):
+		
+		// --- integer options (all is 0 by default) ---
+		
 		//   repeatDelay:  time in ms how long it waits before start repeating the down-events while keypressing
 		//                 value of 0 (default) is disable the initial delay time
-		//
+		
 		//   repeatRate:   time in ms how often it repeats the down-events while keypressing
 		//                 value of 0 (default) is disable keyrepeat completely (also the delay)
 		
