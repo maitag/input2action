@@ -20,12 +20,12 @@
 	<!-- to output action names while debugging InputState -->
 	<haxedef name="input2action_debug" />
 	
-	<!-- to allow repeatKeyboardDefault and custom repeatDelay and repeatRate settings -->
-	<haxedef name="input2action_repeat" />
-	
 	<!-- optimize if no need of key-combinations: -->
 	<!-- <haxedef name="input2action_noKeyCombos" /> -->
-		
+	
+	<!-- optimize if no need of repeatKeyboardDefault or custom repeatDelay and repeatRate settings -->
+	<!-- <haxedef name="input2action_noRepeat" /> -->
+	
 	<haxeflag name="-dce" value="full" />
 	
 </project>

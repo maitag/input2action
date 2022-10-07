@@ -68,14 +68,18 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 	
 	public inline function callDownActions(key:Int, isKeyboard:Bool) { // TODO: isKeyboard
 		var keyState = this.get(key);
-		if (keyState != null #if !input2action_repeat && (!isKeyboard || !keyState.isDown) #end)
+		if (keyState != null
+			#if input2action_noRepeat
+			&& (!isKeyboard || !keyState.isDown)
+			#end
+		)
 		{
 			var repeated = false;
-			#if input2action_repeat
+			#if input2action_noRepeat
+			keyState.isDown = true;
+			#else
 			if (!keyState.isDown) keyState.isDown = true;	
 			else if (isKeyboard) repeated = true;
-			#else
-			keyState.isDown = true;
 			#end
 			
 			#if input2action_noKeyCombos
@@ -115,7 +119,9 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		
 	inline function _callDownAction(actionState:ActionState, isKeyboard:Bool, repeated:Bool) 
 	{	
-		#if input2action_repeat
+		#if input2action_noRepeat
+		if ( actionState.each || (actionState.pressed == 1) ) actionState.callDownAction();
+		#else
 		if (isKeyboard && actionState.repeatKeyboardDefault) { // keyboard is using system-settings
 			actionState.callDownAction();
 		}
@@ -142,8 +148,6 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 				}
 			}
 		}
-		#else
-		if ( actionState.each || (actionState.pressed == 1) ) actionState.callDownAction();
 		#end
 	}
 	
@@ -179,7 +183,7 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 	}
 	
 	inline function _callUpAction(actionState:ActionState, isKeyboard:Bool) {
-		#if input2action_repeat
+		#if !input2action_noRepeat
 		if (actionState.pressed == 0 && actionState.repeatRate != 0 && actionState.timer != null) 
 		{	//trace("actionState.timer.stop()");
 			actionState.timer.stop();
@@ -281,7 +285,7 @@ class ActionState {
 	public var up:Bool = false;
 	public var each:Bool = false;
 	
-	#if input2action_repeat
+	#if !input2action_noRepeat
 	public var repeatKeyboardDefault:Bool = false;
 	public var repeatDelay:Int = 0;
 	public var repeatRate:Int = 0;
@@ -304,13 +308,21 @@ class ActionState {
 	public inline function callDownAction() action(true, player);
 	public inline function callUpAction() action(false, player);
 	
-	public inline function new(up:Null<Bool>, each:Null<Bool>, repeatKeyboardDefault:Null<Bool>, repeatDelay:Null<Int>, repeatRate:Null<Int>, single:Bool, action:ActionFunction, player:Int #if input2action_debug , name:String #end) {
+	public inline function new(
+		up:Null<Bool>, each:Null<Bool>,
+		#if !input2action_noRepeat
+		repeatKeyboardDefault:Null<Bool>, repeatDelay:Null<Int>, repeatRate:Null<Int>,
+		#end
+		single:Bool, action:ActionFunction, player:Int #if input2action_debug , name:String #end
+	) {
 		if (up   != null) this.up = up;
 		if (each != null) this.each = each;
 		
+		#if !input2action_noRepeat
 		if (repeatKeyboardDefault != null) this.repeatKeyboardDefault = repeatKeyboardDefault;
 		if (repeatDelay != null) this.repeatDelay = repeatDelay;
 		if (repeatRate  != null) this.repeatRate = repeatRate;
+		#end
 		
 		this.single = single;
 		this.action = action;

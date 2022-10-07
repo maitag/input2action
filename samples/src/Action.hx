@@ -17,23 +17,24 @@ class Action
 	
 		// --- boolean options (all is false by default) ---
 		
-		//   up: true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
-		//              so the action is also called by key-up-event and its "isDown" then will be FALSE
+		// up: true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
+		//            so the action is also called by key-up-event and its "isDown" then will be FALSE
 		
-		//   if multiple keys for this action is pressed/released together
-		//   each: true  - call the function on each of them
-		//         false - call only down-event if the first is pressed and up-event after the last is released
+		// if multiple keys for this action is pressed/released together
+		// each: true  - call the function on each of them
+		//       false - call only down-event if the first is pressed and up-event after the last is released
 	
-		//   repeatKeyboardDefault: true - repeat the keyboard down-events and using the os-defaults (keyboard only!)
+		// repeatKeyboardDefault: true - repeat the keyboard down-events by using the system default repeat-timings
+		//                        (works only for keyboard-input)
+				
+		// --- integer options to set custom repeat-time ---
+		// (for keyboard this values only gets effect if repeatKeyboardDefault is not enabled)
 		
+		// repeatDelay:  time in ms how long it waits before start repeating the down-events while keypressing
+		//               value of 0 (default) is disable the initial delay time
 		
-		// --- integer options (all is 0 by default) ---
-		
-		//   repeatDelay:  time in ms how long it waits before start repeating the down-events while keypressing
-		//                 value of 0 (default) is disable the initial delay time
-		
-		//   repeatRate:   time in ms how often it repeats the down-events while keypressing
-		//                 value of 0 (default) is disable keyrepeat completely (also the delay)
+		// repeatRate:   time in ms how often it repeats the down-events while keypressing
+		//               value of 0 (default) is disable keyrepeat completely (also the delay)
 		
 		actionMap = [
 				"menu"      => { action:menu },
@@ -41,8 +42,16 @@ class Action
 				"enter"     => { action:enter    , up:true },
 				"modEnter"  => { action:modEnter , up:true },
 				
-				"fireLeft"  => { action:fireLeft , up:true, repeatRate:700 },
-				"fireRight" => { action:fireRight, up:true, repeatRate:700, each:true },
+				"fireLeft"  => { action:fireLeft , up:true
+					#if !input2action_noRepeat
+					, repeatRate:700
+					#end
+				},
+				"fireRight" => { action:fireRight, up:true, each:true
+					#if !input2action_noRepeat
+					, repeatRate:700
+					#end
+				},
 				
 				"modXfireLeft"  =>  { action:modXfireLeft , up:true },
 				"modYfireLeft" =>   { action:modYfireLeft , up:true },
@@ -51,8 +60,16 @@ class Action
 				
 				"moveUp"    => { action:moveUp   , up:true },
 				"moveDown"  => { action:moveDown , up:true },
-				"moveLeft"  => { action:moveLeft , up:true, repeatKeyboardDefault:true, repeatRate:500, repeatDelay:1000 },
-				"moveRight" => { action:moveRight, up:true, repeatKeyboardDefault:true, repeatRate:500 },
+				"moveLeft"  => { action:moveLeft , up:true
+				#if !input2action_noRepeat
+				, repeatKeyboardDefault:true, repeatRate:500, repeatDelay:1000
+				#end
+				},
+				"moveRight" => { action:moveRight, up:true
+				#if !input2action_noRepeat
+				, repeatKeyboardDefault:true, repeatRate:500
+				#end
+				},
 			];
 
 				

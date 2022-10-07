@@ -9,7 +9,9 @@ typedef ActionMapItem = {
 	?description:String,
 	?up:Null<Bool>,
 	?each:Null<Bool>,
+	#if !input2action_noRepeat
 	?repeatKeyboardDefault:Null<Bool>,
 	?repeatDelay:Null<Int>,
 	?repeatRate:Null<Int>
+	#end
 }

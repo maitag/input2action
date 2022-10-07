@@ -71,7 +71,16 @@ class Input2Action
 		var actionState = actionStatePlayer.get(actionConfigItem.action);
 		if (actionState == null)
 		{
-			actionState = new ActionState(actionMapItem.up, actionMapItem.each, actionMapItem.repeatKeyboardDefault, actionMapItem.repeatDelay, actionMapItem.repeatRate, actionConfigItem.single, actionMapItem.action, player #if input2action_debug ,actionConfigItem.action #end);
+			actionState = new ActionState(
+				actionMapItem.up, actionMapItem.each,
+				#if !input2action_noRepeat
+				actionMapItem.repeatKeyboardDefault, actionMapItem.repeatDelay, actionMapItem.repeatRate,
+				#end
+				actionConfigItem.single, actionMapItem.action, player
+				#if input2action_debug
+				,actionConfigItem.action
+				#end
+			);
 			actionStatePlayer.set(actionConfigItem.action, actionState);
 		}
 		return actionState;			
