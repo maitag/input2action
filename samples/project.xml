@@ -3,10 +3,11 @@
 	
 	<meta title="Input2Action" package="lime.samples.input2actions" version="0.5.0" company="semmi" />
 	
-	<app main="JsonInOut" path="bin" file="Input2Action" />
+	<app main="RepeatRate" path="bin" file="Input2Action" />
 	<!-- SimpleConfig -->
 	<!-- KeyCombos -->
 	<!-- MultiConfig -->
+	<!-- RepeatRate -->
 	<!-- JsonInOut -->
 	
 	
@@ -18,6 +19,9 @@
 	
 	<!-- to output action names while debugging InputState -->
 	<haxedef name="input2action_debug" />
+	
+	<!-- to allow repeatKeyboardDefault and custom repeatDelay and repeatRate settings -->
+	<haxedef name="input2action_repeat" />
 	
 	<!-- optimize if no need of key-combinations: -->
 	<!-- <haxedef name="input2action_noKeyCombos" /> -->

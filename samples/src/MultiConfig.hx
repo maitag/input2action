@@ -103,11 +103,6 @@ class MultiConfig extends Application {
 		
 
 		
-		
-		
-		// TODO: save the modified config into json
-		
-		
 		input2Action.enable(window);
 		//input2Action.disable(window);
 

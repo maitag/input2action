@@ -63,19 +63,16 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		if (keyState == null) return false;
 		else return keyState.isDown;
 	}
-			
-	public inline function callDownActions(key:Int) { // TODO: isKeyboard
+	
+	// --------------- DOWN -------------------------
+	
+	public inline function callDownActions(key:Int, isKeyboard:Bool) { // TODO: isKeyboard
 		var keyState = this.get(key);
-		if (keyState != null && !keyState.isDown) {
-		//#if input2action_repeat
-		//if (keyState != null) {
-		//#else
-		//if (keyState != null && (isKeyboard && !keyState.isDown)) {
-		//#end
-		
-			var repeated = false; 
+		if (keyState != null #if !input2action_repeat && (!isKeyboard || !keyState.isDown) #end)
+		{
+			var repeated = false;
 			#if input2action_repeat
-			if (!keyState.isDown) keyState.isDown = true;				
+			if (!keyState.isDown) keyState.isDown = true;	
 			else if (isKeyboard) repeated = true;
 			#else
 			keyState.isDown = true;
@@ -83,15 +80,12 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 			
 			#if input2action_noKeyCombos
 			if (keyState.singleKeyAction != null) {
-				var actionState:ActionState = keyState.singleKeyAction;
-				if (actionState.each) actionState.callDownAction();
-				else {
-					actionState.pressed++;
-					if (actionState.pressed == 1) actionState.callDownAction();
-				}
+				var actionState:ActionState = keyState.singleKeyAction;				
+				if (!repeated) actionState.pressed++;
+				_callDownAction(actionState, isKeyboard, repeated);
 			}
 			#else
-			if (keyState.keyCombo != null) 
+			if (keyState.keyCombo != null)
 			{
 				var called = false;
 				var actionState:ActionState;
@@ -103,15 +97,13 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 						actionState = keyCombo.actionState;
 						
 						if (!actionState.single || !called)
-						{					
+						{	
 							called = true;
 							keyCombo.downBy = true;
-						
-							if (actionState.each) actionState.callDownAction();
-							else {
-								actionState.pressed++;
-								if (actionState.pressed == 1) actionState.callDownAction();
-							}
+							
+							if (!repeated) actionState.pressed++;
+							_callDownAction(actionState, isKeyboard, repeated);
+							
 							if (actionState.single) break;
 						}
 					}
@@ -121,52 +113,51 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 		}
 	}
 		
-	// TODO:
 	inline function _callDownAction(actionState:ActionState, isKeyboard:Bool, repeated:Bool) 
 	{	
 		#if input2action_repeat
 		if (isKeyboard && actionState.repeatKeyboardDefault) { // keyboard is using system-settings
 			actionState.callDownAction();
 		}
-		else if (!repeated) {
-			actionState.callDownAction();
-			if (actionState.repeatRate != 0) {
-				// https://try.haxe.org/#8248a0f7
-				if (actionState.repeatDelay == 0) {
-					if (actionState.timer == null) actionState.timer = new haxe.Timer(actionState.repeatRate);
-					actionState.timer.run = actionState.callDownAction();
+		else if (!repeated) 
+		{
+			if ( actionState.each || (actionState.pressed == 1) ) actionState.callDownAction();
+			
+			if (actionState.repeatRate != 0 && actionState.timer == null) 
+			{
+				//trace("actionState.timer.START()");
+				//if (actionState.timer != null) actionState.timer.stop();
+				if (actionState.repeatDelay == 0) {	
+					actionState.timer = new haxe.Timer(actionState.repeatRate);
+					actionState.timer.run = actionState.callDownAction;
 				}
-				else {
+				else { // https://try.haxe.org/#8248a0f7
 					actionState.timer = new haxe.Timer(actionState.repeatDelay);
 					actionState.timer.run = function() {
-						actionState.callDownAction()
+						actionState.callDownAction();
 						actionState.timer.stop();
 						actionState.timer = new haxe.Timer(actionState.repeatRate);
-						actionState.timer.run = actionState.callDownAction();
+						actionState.timer.run = actionState.callDownAction;
 					};
 				}
 			}
 		}
 		#else
-		if (!repeated) actionState.callDownAction();
+		if ( actionState.each || (actionState.pressed == 1) ) actionState.callDownAction();
 		#end
 	}
 	
-	public function callUpActions(key:Int) {
+	// ----------------- UP -----------------------
+	
+	public function callUpActions(key:Int, isKeyboard:Bool) {
 		var keyState = this.get(key);
 		if (keyState != null && keyState.isDown) {
 			keyState.isDown = false;
-			
 			#if input2action_noKeyCombos
 			if (keyState.singleKeyAction != null) {
 				var actionState:ActionState = keyState.singleKeyAction;
-				if (actionState.each) {
-					if (actionState.up) actionState.callUpAction();
-				}
-				else {
-					actionState.pressed--;
-					if (actionState.up && actionState.pressed == 0) actionState.callUpAction();							
-				}						
+				actionState.pressed--;
+				_callUpAction(actionState, isKeyboard);
 			}
 			#else
 			if (keyState.keyCombo != null)
@@ -176,23 +167,29 @@ abstract InputState(Vector<KeyState>) from Vector<KeyState> to Vector<KeyState>
 				{
 					if (keyCombo.downBy)
 					{
-						keyCombo.downBy = false;
-						
-						actionState = keyCombo.actionState;
-						
-						if (actionState.each) {
-							if (actionState.up) actionState.callUpAction();
-						}
-						else {
-							actionState.pressed--;
-							if (actionState.up && actionState.pressed == 0) actionState.callUpAction();							
-						}						
+						keyCombo.downBy = false;						
+						actionState = keyCombo.actionState;						
+						actionState.pressed--;						
+						_callUpAction(actionState, isKeyboard);											
 					}
 				}
 			}
 			#end
 		}
 	}
+	
+	inline function _callUpAction(actionState:ActionState, isKeyboard:Bool) {
+		#if input2action_repeat
+		if (actionState.pressed == 0 && actionState.repeatRate != 0 && actionState.timer != null) 
+		{	//trace("actionState.timer.stop()");
+			actionState.timer.stop();
+			actionState.timer = null;
+		}
+		#end
+		if (actionState.up && (actionState.each || (actionState.pressed == 0) ) ) actionState.callUpAction();
+	}
+	
+	// ----------------------------------------
 	
 	// TODO: also for joysticks !
 	public function keyCodeName(key:Int):String {
@@ -291,12 +288,12 @@ class ActionState {
 	public var player:Int;
 
 	//TODO:
-	//#if input2action_repeat
-	//public var repeatKeyboardDefault:Bool;
-	//public var repeatDelay:Int;
-	//public var repeatRate:Int;
-	//public var timer:haxe.Timer = null;
-	//#end
+	#if input2action_repeat
+	public var repeatKeyboardDefault:Bool=false;
+	public var repeatDelay:Int=0;
+	public var repeatRate:Int=0;
+	public var timer:haxe.Timer = null;
+	#end
 	
 	#if input2action_debug
 	public var name:String;

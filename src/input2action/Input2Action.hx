@@ -167,18 +167,18 @@ class Input2Action
 		// case KeyCode.TAB: untyped __js__('event.preventDefault();');
 		
 		#if neko // TODO: check later into lime > 7.9.0
-		keyboardState.callDownActions( fromKeyCode(Std.int(key)) );
+		keyboardState.callDownActions( fromKeyCode(Std.int(key)), true );
 		#else
-		keyboardState.callDownActions( fromKeyCode(key) );
+		keyboardState.callDownActions( fromKeyCode(key), true );
 		#end
 	}
 	
 	inline function keyUp(key:KeyCode, _):Void
 	{
 		#if neko // TODO: check later into lime > 7.9.0	
-		keyboardState.callUpActions( fromKeyCode(Std.int(key)) );
+		keyboardState.callUpActions( fromKeyCode(Std.int(key)), true );
 		#else
-		keyboardState.callUpActions( fromKeyCode(key) );
+		keyboardState.callUpActions( fromKeyCode(key), true );
 		#end
 	}
 	
@@ -315,18 +315,18 @@ class Input2Action
 	inline function gamepadButtonDown(gamepadState:InputState, button:GamepadButton):Void
 	{
 		#if neko // TODO: check later into lime > 7.9.0
-		gamepadState.callDownActions( Std.int(button) );
+		gamepadState.callDownActions( Std.int(button), false );
 		#else
-		gamepadState.callDownActions( button );
+		gamepadState.callDownActions( button, false );
 		#end
 	}
 	
 	inline function gamepadButtonUp(gamepadState:InputState, button:GamepadButton):Void
 	{
 		#if neko // TODO: check later into lime > 7.9.0	
-		gamepadState.callUpActions( Std.int(button) );
+		gamepadState.callUpActions( Std.int(button), false );
 		#else
-		gamepadState.callUpActions( button );
+		gamepadState.callUpActions( button, false );
 		#end
 	}
 
