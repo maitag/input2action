@@ -28,6 +28,14 @@ class RepeatRate extends Application {
 				keyboard: [ KeyCode.RIGHT_CTRL, KeyCode.SPACE, KeyCode.RIGHT_ALT ],
 				gamepad:  [ GamepadButton.RIGHT_SHOULDER ]
 			},
+			{	action: "moveUp",
+				keyboard: [ KeyCode.W, KeyCode.UP],
+				gamepad:  [ GamepadButton.DPAD_UP ]
+			},
+			{	action: "moveDown",
+				keyboard: [ KeyCode.S, KeyCode.DOWN],
+				gamepad:  [ GamepadButton.DPAD_DOWN ]
+			},
 			{	action: "moveLeft",
 				keyboard: [ KeyCode.A, KeyCode.LEFT ],
 				gamepad:  [ GamepadButton.DPAD_LEFT ]
