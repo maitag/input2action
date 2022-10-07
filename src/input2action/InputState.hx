@@ -278,8 +278,17 @@ private class KeyCombo
 
 
 class ActionState {
-	public var up:Bool;
-	public var each:Bool;
+	public var up:Bool = false;
+	public var each:Bool = false;
+	
+	#if input2action_repeat
+	public var repeatKeyboardDefault:Bool = false;
+	public var repeatDelay:Int = 0;
+	public var repeatRate:Int = 0;
+	
+	public var timer:haxe.Timer = null;
+	#end
+	
 	public var single:Bool;
 	
 	public var pressed:Int = 0;
@@ -287,13 +296,6 @@ class ActionState {
 	
 	public var player:Int;
 
-	//TODO:
-	#if input2action_repeat
-	public var repeatKeyboardDefault:Bool=false;
-	public var repeatDelay:Int=0;
-	public var repeatRate:Int=0;
-	public var timer:haxe.Timer = null;
-	#end
 	
 	#if input2action_debug
 	public var name:String;
@@ -302,9 +304,14 @@ class ActionState {
 	public inline function callDownAction() action(true, player);
 	public inline function callUpAction() action(false, player);
 	
-	public inline function new(up:Bool, each:Bool, single:Bool, action:ActionFunction, player:Int #if input2action_debug , name:String #end) {
-		this.up = up;
-		this.each = each;
+	public inline function new(up:Null<Bool>, each:Null<Bool>, repeatKeyboardDefault:Null<Bool>, repeatDelay:Null<Int>, repeatRate:Null<Int>, single:Bool, action:ActionFunction, player:Int #if input2action_debug , name:String #end) {
+		if (up   != null) this.up = up;
+		if (each != null) this.each = each;
+		
+		if (repeatKeyboardDefault != null) this.repeatKeyboardDefault = repeatKeyboardDefault;
+		if (repeatDelay != null) this.repeatDelay = repeatDelay;
+		if (repeatRate  != null) this.repeatRate = repeatRate;
+		
 		this.single = single;
 		this.action = action;
 		this.player = player;

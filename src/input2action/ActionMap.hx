@@ -7,6 +7,9 @@ typedef ActionMap = haxe.ds.StringMap<ActionMapItem>;
 typedef ActionMapItem = {
 	action:ActionFunction,
 	?description:String,
-	?up:Bool,
-	?each:Bool
+	?up:Null<Bool>,
+	?each:Null<Bool>,
+	?repeatKeyboardDefault:Null<Bool>,
+	?repeatDelay:Null<Int>,
+	?repeatRate:Null<Int>
 }
