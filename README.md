@@ -37,11 +37,12 @@ var actionConfig:ActionConfig = [
 		gamepad:  [ GamepadButton.LEFT_SHOULDER ]
 	}
 ];
+
 // show how it would look into json-format
 trace(actionConfig.toJson);
 
 
-// contains the actions and mappings to the action-functions
+// contains the actions and mappings to functionpointers
 var actionMap:ActionMap = [
 	"moveLeft"  => { action:moveLeft , up:true },
 	"moveRight" => { action:moveRight, up:true },
@@ -63,22 +64,23 @@ function fire(isDown:Bool, player:Int) {
 }
 
 
-// start
-var input2Action = new Input2Action(actionConfig, actionMap);
+// init with the lime window object to set up keyboard up/down handlers
+var input2Action = new Input2Action(window);
 
 // set keyboard bindings
-input2Action.setKeyboard();
+var keyboardAction = new KeyboardAction(actionConfig, actionMap);
 
-// bind event-handler (lime)
-input2Action.enable(window);
+// add it to input2action
+input2Action.addKeyboard(keyboardAction);
+
+// start
+input2Action.enable();
 ```
 
 
 ## TODO
 
 - more documentation
-- handle multiple modes (e.g. one mode for menu bindings and one for gameplay)
 - handle axis-mode of gamepad or joysticks, let also define additional "keys" for axis-direction
 - let capture input for an action to change config at runtime
-- more optimization
-- make a core lib and crossframework:  input2action-lime, -kha and -heaps
+- more optimization by defines (e.g. if only using one inputActions per device)

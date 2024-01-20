@@ -52,11 +52,11 @@ class JsonInOut extends Application {
 		// create an json formates string by actionConfig
 		var jsonString = actionConfig.toJson();
 		
-		trace("jsonString:", jsonString);
+		trace("actionConfig to json:", jsonString);
 		
 		// --------------------------------------------
 		
-/*		var jsonString = '[
+		var jsonString = '[
 			{	"action": "menu",
 				"keyboard": "ESCAPE",
 				"gamepad" : "BACK, START"
@@ -68,38 +68,11 @@ class JsonInOut extends Application {
 				"gamepad" : "[A, LEFT_STICK], RIGHT_STICK"
 			},
 		]';
-*/		
 		
 		// create an actionConfig by json
 		var actionConfig = ActionConfig.fromJson(jsonString, "test.json");
 
-
-		//trace("actionConfig:", actionConfig);
-		
-		
-		// --------------------------------------------
-		
-		// contains the actions and mappings to the action-identifiers
-		var application = new Action();
-		
-		var input2Action = new Input2Action(actionConfig, application.actionMap);
-		
-		// set keyboard bindings
-		input2Action.setKeyboard();
-		
-		// event handler for new plugged gamepads
-		input2Action.onGamepadConnect = function(gamepad:Gamepad) {
-		    input2Action.setGamepad(gamepad);
-		}
-
-		input2Action.onGamepadDisconnect = function(player:Int) {
-		    trace('players $player gamepad disconnected');
-		}
-		
-		
-		
-		input2Action.enable(window);
-		//input2Action.disable(window);
+		trace("json to actionConfig:", actionConfig);
 
 	}
 	

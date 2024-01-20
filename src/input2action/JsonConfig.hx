@@ -68,12 +68,12 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 				action : a.action,
 				single : a.single,
 				keyboard: (a.keyboard == null) ? null :
-					[for (keys in a.keyboard) (keys.length == 1) ? Input2Action.keyCodeName.get(keys[0]) :// TODO: check valid key!
-						"[" + Input2Action.keyCodeName.get(keys[0]) + ", " + Input2Action.keyCodeName.get(keys[1]) + "]" // TODO: check valid key!
+					[for (keys in a.keyboard) (keys.length == 1) ? KeyboardAction.keyCodeName.get(keys[0]) :// TODO: check valid key!
+						"[" + KeyboardAction.keyCodeName.get(keys[0]) + ", " + KeyboardAction.keyCodeName.get(keys[1]) + "]" // TODO: check valid key!
 					].join(", "),
 				gamepad: (a.gamepad == null) ? null :
-					[for (keys in a.gamepad) (keys.length == 1) ? Input2Action.gamepadButtonName.get(keys[0]) :// TODO: check valid key!
-						"[" + Input2Action.gamepadButtonName.get(keys[0]) + ", " + Input2Action.gamepadButtonName.get(keys[1]) + "]" // TODO: check valid key!
+					[for (keys in a.gamepad) (keys.length == 1) ? GamepadAction.gamepadButtonName.get(keys[0]) :// TODO: check valid key!
+						"[" + GamepadAction.gamepadButtonName.get(keys[0]) + ", " + GamepadAction.gamepadButtonName.get(keys[1]) + "]" // TODO: check valid key!
 					].join(", "),
 				joystick : null, // TODO
 			});
@@ -97,12 +97,12 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 				var s = rSpaces.replace(j.keyboard,"");
 				while (s.length > 0) {
 					if (rKeyCombo.match(s)) {
-						keyboard.push( [for (i in rKeyCombo.matched(1).split(",")) (Input2Action.keyCodeValue.get(i):KeyCode)] );// TODO: check valid key!
+						keyboard.push( [for (i in rKeyCombo.matched(1).split(",")) (KeyboardAction.keyCodeValue.get(i):KeyCode)] );// TODO: check valid key!
 						s = rKeyCombo.replace(s, "");
 						// TODO: better s = s.substr(e.length); errPos += e.length;
 					}
 					else if (rKeyEntry.match(s)) {
-						keyboard.push( [(Input2Action.keyCodeValue.get(rKeyEntry.matched(1)):KeyCode)] ); // TODO: check valid key!
+						keyboard.push( [(KeyboardAction.keyCodeValue.get(rKeyEntry.matched(1)):KeyCode)] ); // TODO: check valid key!
 						s = rKeyEntry.replace(s, "");
 					}
 					else break; // TODO: throw error
@@ -114,11 +114,11 @@ abstract JsonConfig(Array<JsonConfigItem>) from Array<JsonConfigItem> to Array<J
 				var s = rSpaces.replace(j.gamepad,"");
 				while (s.length > 0) {
 					if (rKeyCombo.match(s)) {
-						gamepad.push( [for (i in rKeyCombo.matched(1).split(",")) (Input2Action.gamepadButtonValue.get(i):GamepadButton)] );// TODO: check valid key!
+						gamepad.push( [for (i in rKeyCombo.matched(1).split(",")) (GamepadAction.gamepadButtonValue.get(i):GamepadButton)] );// TODO: check valid key!
 						s = rKeyCombo.replace(s, "");
 					}
 					else if (rKeyEntry.match(s)) {
-						gamepad.push( [(Input2Action.gamepadButtonValue.get(rKeyEntry.matched(1)):GamepadButton)] ); // TODO: check valid key!
+						gamepad.push( [(GamepadAction.gamepadButtonValue.get(rKeyEntry.matched(1)):GamepadButton)] ); // TODO: check valid key!
 						s = rKeyEntry.replace(s, "");
 					}
 					else break; // TODO: throw error

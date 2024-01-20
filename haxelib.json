@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["input", "keyboard", "gamepad", "joystick"],
 	"description": "configure and handle keyboard, gamepad and joystick input",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"classPath": "src/",
-	"releasenote": "new feature to let actions repeat on keypress",
+	"releasenote": "fully refactor to let run all more flexible into different modes and more",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
 		"lime": "",

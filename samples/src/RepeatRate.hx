@@ -8,8 +8,11 @@ import lime.ui.GamepadButton;
 //import lime.ui.GamepadAxis;
 
 import input2action.ActionConfig;
+import input2action.KeyboardAction;
+import input2action.GamepadAction;
 import input2action.Input2Action;
 
+import input2action.ActionMap.ActionMapItem;
 
 class RepeatRate extends Application {
 	
@@ -46,30 +49,49 @@ class RepeatRate extends Application {
 			},
 		];
 		
-		// contains the actions and mappings to the action-identifiers
-		var application = new Action();
+		// init input2Action
+		var input2Action = new Input2Action(window);
 		
-		var input2Action = new Input2Action(actionConfig, application.actionMap);
-		
+		// change the repeat rate for gamepads left fire button (look at Action.hx!)
+		var actionMap = new Action().actionMap;
+		var actionMapItem:ActionMapItem = actionMap.get("fireLeft");
+		actionMapItem.repeatRate = 100;
+
+		// -------- KEYBOARD -----------
+
 		// set keyboard bindings
-		input2Action.setKeyboard();
+		var keyboardAction = new KeyboardAction(actionConfig, actionMap);
+		input2Action.addKeyboard(keyboardAction);
 		
+
+		// -------- GAMEPAD -----------
+
+		// event handler if a gamepad disconnects
+		var onGamepadDisconnect = function(gamepad:Gamepad) {
+			trace('Gamepad ${gamepad.id} disconnected');
+			// remove gamepad and all its gamepadAction bindings
+			input2Action.removeGamepad(gamepad);
+		};
+
 		// event handler for new plugged gamepads
-		input2Action.onGamepadConnect = function(gamepad:Gamepad) {
-		    input2Action.setGamepad(gamepad);
-		}
+		var onGamepadConnect = function(gamepad:Gamepad) {
+			trace('Gamepad ${gamepad.id} connected');
+			// set gamepad bindings
+			var gamepadAction = new GamepadAction(gamepad.id, actionConfig, actionMap);
+			input2Action.addGamepad(gamepad, gamepadAction);
 
-		input2Action.onGamepadDisconnect = function(player:Int) {
-		    trace('players $player gamepad disconnected');
-		}
-		
-		
-		//trace(actionConfig.toJson);
-		
-		
-		input2Action.enable(window);
-		//input2Action.disable(window);
+			// disconnect handler have to be added per gamepad here
+			gamepad.onDisconnect.add(onGamepadDisconnect.bind(gamepad));
+		};
 
+		Gamepad.onConnect.add(onGamepadConnect);
+
+		// also call the onConnect handler one times to set up already connected gamepads
+		for (gamepad in Gamepad.devices) onGamepadConnect(gamepad);
+
+		
+		input2Action.enable();
+		//input2Action.disable();
 	}
 	
 	
