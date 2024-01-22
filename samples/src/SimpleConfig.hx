@@ -5,22 +5,24 @@ import lime.graphics.RenderContext;
 import lime.ui.Gamepad;
 import lime.ui.KeyCode;
 import lime.ui.GamepadButton;
-//import lime.ui.GamepadAxis;
 
 import input2action.ActionConfig;
+import input2action.ActionMap;
 import input2action.KeyboardAction;
 import input2action.GamepadAction;
 import input2action.Input2Action;
 
 
-class SimpleConfig extends Application {
-	
+class SimpleConfig extends Application {	
 		
 	public override function onWindowCreate ():Void 
 	{
 		//trace(lime.system.Locale.currentLocale.language);
 
-		// bindings for keyboard and gamepad:
+		// ---------------------------------------------------------------------
+		// --------- key- and buttonbindings for keyboard and gamepad ----------
+		// ---------------------------------------------------------------------
+
 		var actionConfig:ActionConfig = [
 			{	action: "menu",
 				keyboard: KeyCode.ESCAPE,
@@ -64,15 +66,78 @@ class SimpleConfig extends Application {
 			},
 		];
 		
+		// ---------------------------------------------------------------------
+		// ----------- map action-identifiers to function-references -----------
+		// ---------------------------------------------------------------------
+	
+		var actionMap:ActionMap = [
+			"menu"      => { action:(_, _)->trace('menu') },
+			"inventory" => { action:(_, player)->trace('inventory - player:$player') },
 
-		// init input2Action
+			// up: true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
+			//            so the action is also called by key-up-event and its "isDown" then will be FALSE
+			"enter"     => { action:(isDown, player)->trace('enter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modEnter"  => { action:(isDown, player)->trace('modenter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			
+			"modXfireLeft"  =>  { action:(isDown, player)->trace('modXfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modYfireLeft" =>   { action:(isDown, player)->trace('modYfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modXfireRight"  => { action:(isDown, player)->trace('modXfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modYfireRight" =>  { action:(isDown, player)->trace('modYfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			
+			"moveUp"    => { action:(isDown, player)->trace('moveUp   - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"moveDown"  => { action:(isDown, player)->trace('moveDown - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+
+			// --- integer options to set custom repeat-time ---
+			// (for keyboard this values only gets effect if repeatKeyboardDefault is not enabled)
+			
+			// repeatDelay:  time in ms how long it waits before start repeating the down-events while keypressing
+			//               value of 0 (default) is disable the initial delay time
+			
+			// repeatRate:   time in ms how often it repeats the down-events while keypressing
+			//               value of 0 (default) is disable keyrepeat completely (also the delay)			
+			"moveLeft"  => { action:(isDown, player)->trace('moveLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
+				#if !input2action_noRepeat
+				, repeatKeyboardDefault:true, repeatRate:500, repeatDelay:1000
+				#end
+			},
+			
+			"moveRight" => { action:(isDown, player)->trace('moveRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
+				#if !input2action_noRepeat
+				, repeatKeyboardDefault:true, repeatRate:500
+				#end
+			},
+
+			"fireLeft"  => { action:(isDown, player)->trace('fireLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
+				#if !input2action_noRepeat
+				, repeatRate:700
+				#end
+			},
+
+			// if multiple keys for this action is pressed/released together
+			// each: true  - call the function on each of them
+			//       false - call only down-event if the first is pressed and up-event after the last is released			
+			"fireRight" => { action:(isDown, player)->trace('fireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true,
+				each:true
+				#if !input2action_noRepeat
+				, repeatRate:700
+				#end
+			}
+			
+		];
+
+
+
+		// ---------------------------------------------------
+		// -------------- init input2Action  -----------------
+		// ---------------------------------------------------
+
 		var input2Action = new Input2Action(window);
 		
 
 		// -------- KEYBOARD -----------
 
 		// set keyboard bindings
-		var keyboardAction = new KeyboardAction(actionConfig, new Action().actionMap);
+		var keyboardAction = new KeyboardAction(actionConfig, actionMap);
 		input2Action.addKeyboard(keyboardAction);
 		
 
@@ -89,7 +154,7 @@ class SimpleConfig extends Application {
 		var onGamepadConnect = function(gamepad:Gamepad) {
 			trace('Gamepad ${gamepad.id} connected');
 			// set gamepad bindings
-			var gamepadAction = new GamepadAction(gamepad.id, actionConfig, new Action().actionMap);
+			var gamepadAction = new GamepadAction(gamepad.id, actionConfig, actionMap);
 			input2Action.addGamepad(gamepad, gamepadAction);
 
 			// disconnect handler have to be added per gamepad here
@@ -102,11 +167,18 @@ class SimpleConfig extends Application {
 		for (gamepad in Gamepad.devices) onGamepadConnect(gamepad);
 
 		
+		// ---------------------------------------------------
+		// -------------- start input2Action  ----------------
+		// ---------------------------------------------------
 		input2Action.enable();
+
 		//input2Action.disable();
 	}
 	
 	
+
+
+
 	// ------------------------------------------------------------	
 	// ------------------------------------------------------------	
 	// ------------------------------------------------------------

@@ -6,8 +6,7 @@
 	<app main="SimpleConfig" path="bin" file="Input2Action" />
 	<!-- SimpleConfig -->
 	<!-- KeyCombos -->
-	<!-- MultiConfig -->
-	<!-- RepeatRate -->
+	<!-- MultiPlayer -->
 	<!-- JsonInOut -->
 
 	<!-- TransferControl -->
