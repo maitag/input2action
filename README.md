@@ -76,7 +76,7 @@ input2Action.addKeyboard(keyboardAction);
 input2Action.enable();
 ```
 
-Please look into the samples-folder to see all more options for different usecases.
+Please look into the samples-folder to see all options for different usecases.
 
 
 ## TODO
