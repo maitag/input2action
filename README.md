@@ -18,6 +18,17 @@ haxe library to easy handle configuration and bingings of keyboard/gamepad-butto
 - json2object
 
 
+## Installation
+```
+haxelib install input2action
+```
+
+or use the latest developement version from github:
+```
+haxelib git input2action https://github.com/maitag/input2action.git
+```
+
+
 ## Synopsis
 
 ```haxe
@@ -84,4 +95,4 @@ Please look into the samples-folder to see all options for different usecases.
 - let change the param-Type by compiler-define (or by macro)
 - more documentation
 - let capture the input for an action to let easy change the configuration at runtime
-- more optimization by defines (e.g. if only using one inputActions per device)
+- more optimization by defines (e.g. if only using one inputAction per device)
