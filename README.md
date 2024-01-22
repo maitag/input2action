@@ -1,22 +1,21 @@
 # input2action
-haxe library to configure and handle keyboard, gamepad and joystick input
+haxe library to easy handle configuration and bingings of keyboard/gamepad-buttons to haxe-calls
 
-This lib let you easy bind haxe functions to input-events from keyboard, gamepad or joystick devices.
+
+## Features
+
+- define the input-device-bindings inside of haxe or load/save as json-format
+- handle key/button down-events and optional up-events
+- let define multiple keys for one action over cross devices
+- key-combinations: press 2 keys in order to trigger an action
+- let use default repeat-rate/delay for keyboard or use custom ones
+- handle multiple params (e.g. let share 1 keyboard or gamepad for 2 player-params)
 
 
 ## Dependencies
 
 - haxelime
 - json2object
-
-## Features
-
-- define the input-device-bindings inside of haxe or load/save as json-format
-- handle key/button down-events and optional up-events
-- key-combinations: press 2 keys in order to trigger an action
-- multiple keys for one action over cross devices
-- let use default repeat-rate/delay for keyboard or use custom ones
-- handle multiple players (e.g. let share 1 keyboard or gamepad for 2 players)
 
 
 ## Synopsis
@@ -51,16 +50,16 @@ var actionMap:ActionMap = [
 
 
 // functions to call
-function moveLeft(isDown:Bool, player:Int) {
-	trace('moveLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+function moveLeft(isDown:Bool, param:Int) {
+	trace('moveLeft - ${(isDown) ? "DOWN" : "UP"}, param:$param');
 }
 
-function moveRight(isDown:Bool, player:Int) {
-	trace('moveRight - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+function moveRight(isDown:Bool, param:Int) {
+	trace('moveRight - ${(isDown) ? "DOWN" : "UP"}, param:$param');
 }
 
-function fire(isDown:Bool, player:Int) {
-	trace('fire - ${(isDown) ? "DOWN" : "UP"}, player:$player');
+function fire(isDown:Bool, param:Int) {
+	trace('fire - ${(isDown) ? "DOWN" : "UP"}, param:$param');
 }
 
 
@@ -77,10 +76,12 @@ input2Action.addKeyboard(keyboardAction);
 input2Action.enable();
 ```
 
+Please look into the samples-folder to see all more options for different usecases.
+
 
 ## TODO
 
+- let change the param-Type by compiler-define (or by macro)
 - more documentation
-- handle axis-mode of gamepad or joysticks, let also define additional "keys" for axis-direction
-- let capture input for an action to change config at runtime
+- let capture the input for an action to let easy change the configuration at runtime
 - more optimization by defines (e.g. if only using one inputActions per device)

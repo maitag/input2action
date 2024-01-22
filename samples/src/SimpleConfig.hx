@@ -79,10 +79,10 @@ class SimpleConfig extends Application {
 			"enter"     => { action:(isDown, player)->trace('enter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
 			"modEnter"  => { action:(isDown, player)->trace('modenter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
 			
-			"modXfireLeft"  =>  { action:(isDown, player)->trace('modXfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modYfireLeft" =>   { action:(isDown, player)->trace('modYfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modXfireRight"  => { action:(isDown, player)->trace('modXfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modYfireRight" =>  { action:(isDown, player)->trace('modYfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modXfireLeft"  => { action:(isDown, player)->trace('modXfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modYfireLeft"  => { action:(isDown, player)->trace('modYfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modXfireRight" => { action:(isDown, player)->trace('modXfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modYfireRight" => { action:(isDown, player)->trace('modYfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
 			
 			"moveUp"    => { action:(isDown, player)->trace('moveUp   - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
 			"moveDown"  => { action:(isDown, player)->trace('moveDown - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
