@@ -4,12 +4,12 @@ haxe library to easy handle configuration and bingings of keyboard/gamepad-butto
 
 ## Features
 
-- define the input-device-bindings inside of haxe or load/save as json-format
+- define the configuration by haxe or load/save as json-format
 - handle key/button down-events and optional up-events
 - let define multiple keys for one action over cross devices
 - key-combinations: press 2 keys in order to trigger an action
 - let use default repeat-rate/delay for keyboard or use custom ones
-- handle multiple params (e.g. let share 1 keyboard or gamepad for 2 player-params)
+- handle multiple params (e.g. let share 1 keyboard or gamepad for 2 players)
 
 
 ## Dependencies
