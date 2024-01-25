@@ -4,9 +4,9 @@
 	"license": "MIT",
 	"tags": ["input", "keyboard", "gamepad"],
 	"description": "configure and handle keyboard and gamepad-buttons input",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"classPath": "src/",
-	"releasenote": "ready for haxelib",
+	"releasenote": "some codecleaning and reducing api for better integration",
 	"contributors": ["maitag"],
 	"dependencies": {
 		"lime": "",
