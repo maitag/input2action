@@ -41,7 +41,7 @@ class MultiPlayer extends Application {
 		];
 
 		// init input2action
-		var input2Action = new Input2Action(window);
+		var input2Action = new Input2Action();
 
 		// -------- KEYBOARD -----------
 
@@ -69,7 +69,10 @@ class MultiPlayer extends Application {
 		};
 
 		
-		input2Action.enable();
+		// ---------------------------------------------------
+		// --- register limes key up/down events -------------
+		// ---------------------------------------------------
+		input2Action.registerKeyboardEvents(window);
 	}
 	
 	

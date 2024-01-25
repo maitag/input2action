@@ -131,7 +131,7 @@ class SimpleConfig extends Application {
 		// -------------- init input2Action  -----------------
 		// ---------------------------------------------------
 
-		var input2Action = new Input2Action(window);
+		var input2Action = new Input2Action();
 		
 
 		// -------- KEYBOARD -----------
@@ -168,11 +168,9 @@ class SimpleConfig extends Application {
 
 		
 		// ---------------------------------------------------
-		// -------------- start input2Action  ----------------
+		// --- register limes key up/down events -------------
 		// ---------------------------------------------------
-		input2Action.enable();
-
-		//input2Action.disable();
+		input2Action.registerKeyboardEvents(window);
 	}
 	
 	

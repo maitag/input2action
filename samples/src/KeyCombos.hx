@@ -139,7 +139,7 @@ class KeyCombos extends Application {
 		// ---------------------------------------------------
 
 		// init input2Action
-		var input2Action = new Input2Action(window);
+		var input2Action = new Input2Action();
 
 		
 		// -------- KEYBOARD -----------
@@ -175,8 +175,10 @@ class KeyCombos extends Application {
 		for (gamepad in Gamepad.devices) onGamepadConnect(gamepad);
 
 		
-		input2Action.enable();
-		//input2Action.disable();
+		// ---------------------------------------------------
+		// --- register limes key up/down events -------------
+		// ---------------------------------------------------
+		input2Action.registerKeyboardEvents(window);
 	}
 	
 	

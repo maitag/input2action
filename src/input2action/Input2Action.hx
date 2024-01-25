@@ -3,7 +3,6 @@ package input2action;
 import lime.ui.Window;
 import lime.ui.GamepadButton;
 import lime.ui.KeyCode;
-//import lime.ui.KeyModifier;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 
@@ -17,23 +16,9 @@ import input2action.GamepadAction;
 
 class Input2Action 
 {
-	var window:Window;
+	var window:Window = null;
 
-	public function new(window:Window) 
-	{
-		this.window = window;		
-	}
-
-	public function enable() {
-		enableKeyboard();
-		enableGamepad();
-	}
-	
-	public function disable() {
-		disableKeyboard();
-		disableGamepad();
-	}
-	
+	public function new() {};
 
 	// -----------------------------------------------------
 	// ---------------- Keyboard ---------------------------
@@ -49,21 +34,26 @@ class Input2Action
 		activeKeyboardActions.remove(keyboardAction);
 	}
 
-	public function enableKeyboard() {
+	public function registerKeyboardEvents(window:Window) {
+		if (this.window == null) this.window = window;
+		else ErrorMsg.keyboardEventsAlreadyRegistered();
 		window.onKeyDown.add(keyDown);
 		window.onKeyUp.add(keyUp);
 	}
 
-	public function disableKeyboard() {
-		window.onKeyDown.remove(keyDown);
-		window.onKeyUp.remove(keyUp);
+	public function unRegisterKeyboardEvents() {
+		if (this.window == null) {
+			window.onKeyDown.remove(keyDown);
+			window.onKeyUp.remove(keyUp);
+			window = null;
+		}
 	}
 	
-	inline function keyDown(key:KeyCode, _):Void {
+	public inline function keyDown(key:KeyCode, _):Void {
 		for (keyboardAction in activeKeyboardActions) keyboardAction.keyDown(key);
 	}
 	
-	inline function keyUp(key:KeyCode, _):Void {
+	public inline function keyUp(key:KeyCode, _):Void {
 		for (keyboardAction in activeKeyboardActions) keyboardAction.keyUp(key);
 	}
 	
@@ -76,7 +66,7 @@ class Input2Action
 
 	public function addGamepad(gamepad:Gamepad, gamepadAction:GamepadAction) {
 		var activeGamepadActions:Array<GamepadAction> = activeGamepads.get(gamepad);
-		
+
 		// if its the first gamepadAction for this gamepad
 		if (activeGamepadActions == null) 
 		{
@@ -84,20 +74,18 @@ class Input2Action
 			activeGamepads.set( gamepad, activeGamepadActions );
 
 			// add eventhandler for this gamepad
-			gamepad.onButtonDown.add(gamepadButtonDown.bind(activeGamepadActions));
-			gamepad.onButtonUp.add(gamepadButtonUp.bind(activeGamepadActions));			
-			//gamepad.onAxisMove.add(gamepadAxisMove.bind(activeGamepadActions));
+			gamepad.onButtonDown.add(_gamepadButtonDown.bind(activeGamepadActions));
+			gamepad.onButtonUp.add(_gamepadButtonUp.bind(activeGamepadActions));			
 		}
 		activeGamepadActions.push(gamepadAction);
 	}
 	
 	public function removeGamepadAction(gamepad:Gamepad, gamepadAction:GamepadAction) {
 		var activeGamepadActions:Array<GamepadAction> = activeGamepads.get(gamepad);
-		if (activeGamepadActions == null) {
-			trace("into removeGamepad: not added something yet for this gamepad");
-		} 
-		else {
+		if (activeGamepadActions != null)
+		{
 			activeGamepadActions.remove(gamepadAction);
+			
 			// if removing last gamepadAction for this gamepad
 			if (activeGamepadActions.length == 0) _removeGamepad(gamepad, activeGamepadActions);
 		}
@@ -105,72 +93,30 @@ class Input2Action
 
 	public function removeGamepad(gamepad:Gamepad) {
 		var activeGamepadActions:Array<GamepadAction> = activeGamepads.get(gamepad);
-		if (activeGamepadActions == null) {
-			trace("into removeGamepad: not added something yet for this gamepad");
-		} 
-		else _removeGamepad(gamepad, activeGamepadActions);
+		if (activeGamepadActions != null) _removeGamepad(gamepad, activeGamepadActions);
 	}
 
 	inline function _removeGamepad(gamepad:Gamepad, activeGamepadActions:Array<GamepadAction>) {
 		activeGamepads.remove(gamepad);
-
 		// remove eventhandler for this gamepad
-		gamepad.onButtonDown.remove(gamepadButtonDown.bind(activeGamepadActions));
-		gamepad.onButtonUp.remove(gamepadButtonUp.bind(activeGamepadActions));
-		//gamepad.onAxisMove.remove(gamepadAxisMove.bind(activeGamepadActions));
+		gamepad.onButtonDown.remove(_gamepadButtonDown.bind(activeGamepadActions));
+		gamepad.onButtonUp.remove(_gamepadButtonUp.bind(activeGamepadActions));
 	}
 
-	inline function gamepadButtonDown(activeGamepadActions:Array<GamepadAction>, button:GamepadButton):Void {
+	inline function _gamepadButtonDown(activeGamepadActions:Array<GamepadAction>, button:GamepadButton):Void {
 		for (gamepadAction in activeGamepadActions) gamepadAction.buttonDown(button);
 	}
 	
-	inline function gamepadButtonUp(activeGamepadActions:Array<GamepadAction>, button:GamepadButton):Void {
+	inline function _gamepadButtonUp(activeGamepadActions:Array<GamepadAction>, button:GamepadButton):Void {
 		for (gamepadAction in activeGamepadActions) gamepadAction.buttonUp(button);
 	}
 
-	// TODO:
-	public function enableGamepad() {
-		
-	}
-
-	public function disableGamepad() {
-		
-	}
-
-
-
-	// TODO
-	
-	inline function gamepadAxisMove(gamepadState:InputState, axis:GamepadAxis, value:Float):Void
-	{	
-		if (value < -0.5) {
-			//trace (axis, value);					
-		} else if (value > 0.5) {
-			//trace (axis, value);
-		}
-/*		switch (axis) {		
-			case GamepadAxis.LEFT_X:
-				
-				if (value < -0.5) {
-					trace ("axis left");					
-				} else if (value > 0.5) {
-					trace ("axis right");
-				}
-			
-			case GamepadAxis.LEFT_Y:
-				
-				if (value < -0.5) {
-					trace ("axis up");
-				} else if (value > 0.5) {
-					trace ("axis down");
-				}
-			
-			default:		
-		}
-*/		
+	public inline function gamepadButtonDown(gamepad:Gamepad, button:GamepadButton):Void {
+		_gamepadButtonDown(activeGamepads.get(gamepad), button);
 	}
 	
-	
-	
+	public inline function gamepadButtonUp(gamepad:Gamepad, button:GamepadButton):Void {
+		_gamepadButtonUp(activeGamepads.get(gamepad), button);
+	}	
 
 }

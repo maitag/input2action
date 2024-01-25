@@ -19,7 +19,15 @@ class ErrorMsg
 	}
 		
 	
-	// --------------- Input2Action ----------------
+	// ------------- Input2Action ----------------
+
+	public static inline function keyboardEventsAlreadyRegistered() {
+		error('The keyboard events are already registered. Use "unRegisterKeyboardEvents()" at first!');
+	}
+
+
+	
+	// ----------- Keyboard/GamepadAction --------
 	
 	public static inline function keyCombosNeedToEnable(actionState:ActionState) {
 		#if input2action_debug
