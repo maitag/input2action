@@ -20,6 +20,15 @@ abstract ActionConfig(Array<ActionConfigItem>) from Array<ActionConfigItem> to A
 		return JsonConfig.fromActionConfig(this);
 	}
 
+	public function add(actionConfig:ActionConfig, replaceExisting:Bool = true) {
+		if (replaceExisting) for (item in actionConfig) this.push(item);
+		else {
+			var existingActions:Array<String> = [for (item in this) item.action];
+			for (item in actionConfig)
+				if (existingActions.indexOf(item.action) < 0) this.push(item);
+		}
+	}
+
 }
 
 

@@ -3,10 +3,10 @@
 	"url": "https://github.com/maitag/input2action",
 	"license": "MIT",
 	"tags": ["input", "keyboard", "gamepad"],
-	"description": "configure and handle keyboard and gamepad-buttons input",
-	"version": "0.7.1",
+	"description": "configure and handle input-events for keyboard and gamepad-buttons",
+	"version": "0.7.2",
 	"classPath": "src/",
-	"releasenote": "some codecleaning and reducing api for better integration",
+	"releasenote": "actionconfigs and actionmaps can be added together",
 	"contributors": ["maitag"],
 	"dependencies": {
 		"lime": "",
