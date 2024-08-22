@@ -83,7 +83,7 @@ class KeyCombos extends Application {
 		// ----------- map action-identifiers to function-references -----------
 		// ---------------------------------------------------------------------
 	
-		var actionMap:ActionMap = [
+		var actionMap = new ActionMap([
 			// up: true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
 			//            so the action is also called by key-up-event and its "isDown" then will be FALSE
 			"enter"     => { action:(isDown, player:Int)->trace('enter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
@@ -130,7 +130,7 @@ class KeyCombos extends Application {
 				#end
 			}
 			
-		];
+		]);
 
 
 

@@ -70,7 +70,9 @@ class SimpleConfig extends Application {
 		// ----------- map action-identifiers to function-references -----------
 		// ---------------------------------------------------------------------
 	
-		var actionMap:ActionMap = [
+		// for haxe < 4.2 : mixed types into values gives error by directly assign a map-literal like "var actionMap:ActionMap = [ ... ];"
+
+		var actionMap = new ActionMap([
 			"menu"      => { action:(_, _)->trace('menu') },
 			"inventory" => { action:(_, player:Int)->trace('inventory - player:$player') },
 
@@ -123,7 +125,7 @@ class SimpleConfig extends Application {
 				#end
 			}
 			
-		];
+		]);
 
 
 
