@@ -86,13 +86,13 @@ class KeyCombos extends Application {
 		var actionMap:ActionMap = [
 			// up: true - enables key/button up-event (without that, the "isDown" param is allways TRUE),
 			//            so the action is also called by key-up-event and its "isDown" then will be FALSE
-			"enter"     => { action:(isDown, player)->trace('enter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modEnter"  => { action:(isDown, player)->trace('modenter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"enter"     => { action:(isDown, player:Int)->trace('enter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modEnter"  => { action:(isDown, player:Int)->trace('modenter - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
 			
-			"modXfireLeft"  =>  { action:(isDown, player)->trace('modXfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modYfireLeft" =>   { action:(isDown, player)->trace('modYfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modXfireRight"  => { action:(isDown, player)->trace('modXfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
-			"modYfireRight" =>  { action:(isDown, player)->trace('modYfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modXfireLeft"  =>  { action:(isDown, player:Int)->trace('modXfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modYfireLeft" =>   { action:(isDown, player:Int)->trace('modYfireLeft  - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modXfireRight"  => { action:(isDown, player:Int)->trace('modXfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
+			"modYfireRight" =>  { action:(isDown, player:Int)->trace('modYfireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true },
 			
 			// --- integer options to set custom repeat-time ---
 			// (for keyboard this values only gets effect if repeatKeyboardDefault is not enabled)
@@ -102,19 +102,19 @@ class KeyCombos extends Application {
 			
 			// repeatRate:   time in ms how often it repeats the down-events while keypressing
 			//               value of 0 (default) is disable keyrepeat completely (also the delay)			
-			"moveLeft"  => { action:(isDown, player)->trace('moveLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
+			"moveLeft"  => { action:(isDown, player:Int)->trace('moveLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
 				#if !input2action_noRepeat
 				, repeatKeyboardDefault:true, repeatRate:500, repeatDelay:1000
 				#end
 			},
 			
-			"moveRight" => { action:(isDown, player)->trace('moveRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
+			"moveRight" => { action:(isDown, player:Int)->trace('moveRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
 				#if !input2action_noRepeat
 				, repeatKeyboardDefault:true, repeatRate:500
 				#end
 			},
 
-			"fireLeft"  => { action:(isDown, player)->trace('fireLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
+			"fireLeft"  => { action:(isDown, player:Int)->trace('fireLeft - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true
 				#if !input2action_noRepeat
 				, repeatRate:700
 				#end
@@ -123,7 +123,7 @@ class KeyCombos extends Application {
 			// if multiple keys for this action is pressed/released together
 			// each: true  - call the function on each of them
 			//       false - call only down-event if the first is pressed and up-event after the last is released			
-			"fireRight" => { action:(isDown, player)->trace('fireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true,
+			"fireRight" => { action:(isDown, player:Int)->trace('fireRight - ${(isDown) ? "DOWN" : "UP"}, player:$player'), up:true,
 				each:true
 				#if !input2action_noRepeat
 				, repeatRate:700

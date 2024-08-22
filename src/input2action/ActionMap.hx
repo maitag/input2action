@@ -14,19 +14,22 @@ abstract ActionMap(StringMap<ActionMapItem>) from StringMap<ActionMapItem> to St
 	}
 	*/
 
-	/*
+	
 	// this did not work if ActionMapItem is a @:structInit
 	@:from
 	public static inline function fromStringMap(map:Map<String, ActionMapItem>):ActionMap {
-		return cast map;
+		// trace("cast from Map<String, ActionMapItem>");
+		return (map : StringMap<ActionMapItem>);
 	}
-	*/
-
+	
+	/*
 	// helper to cast also from Map<String, ...> while give values by map-literal-syntax 
 	@:from
 	public static inline function fromStringMapAny(map:Map<String, ActionMapItemAny>):ActionMap {
-		return cast map;
+		trace("cast from Map<String, ActionMapItemAny>");
+		return (map : StringMap<ActionMapItem>);
 	}
+	*/
 
 	public function add(actionMap:ActionMap, replaceExisting:Bool = true) {
 		for (key => value in actionMap) 
@@ -36,7 +39,7 @@ abstract ActionMap(StringMap<ActionMapItem>) from StringMap<ActionMapItem> to St
 
 }
 
-/*
+
 typedef ActionMapItem = {
 	action:ActionFunction,
 	?description:String,
@@ -48,8 +51,9 @@ typedef ActionMapItem = {
 	?repeatRate:Null<Int>
 	#end
 }
-*/
 
+/*
+// problems with hashlink
 @:structInit
 class ActionMapItem {
 	public var action:ActionFunction;
@@ -62,8 +66,9 @@ class ActionMapItem {
 	public var repeatRate:Null<Int> = null;
 	#end
 }
+*/
 
-
+/*
 // helper to cast also from Map<String, ...> while give values by map-literal-syntax 
 private typedef ActionMapItemAny = {
 	action:Any->Any->Void,
@@ -76,4 +81,4 @@ private typedef ActionMapItemAny = {
 	?repeatRate:Null<Int>
 	#end
 }
-
+*/

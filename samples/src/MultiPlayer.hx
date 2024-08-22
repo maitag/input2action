@@ -37,7 +37,7 @@ class MultiPlayer extends Application {
 
 		// map to functions
 		var actionMap:ActionMap = [
-			"inventory" => { action:(_, player)->trace('inventory - player:$player') },
+			"inventory" => { action:(_, player:Int)->trace('inventory - player:$player') },
 		];
 
 		// init input2action
